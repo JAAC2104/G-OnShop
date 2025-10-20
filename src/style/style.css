@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+.bg-pink{
+    background-color: #dc2597;
+}
+
+.bg-blue{
+    background-color: #29235c;
+}
+
+.bg-yellow{
+    background-color: #f3c300;
+}
+
+.text-pink{
+    color: #dc2597;
+}
+
+.text-blue{
+    color: #29235c;
+}
+
+.text-yellow{
+    color: #f3c300;
+}
+
+.border-pink{
+    border-color: #dc2597;
+}
+
+@layer utilities{
+    @keyframes scroll-slide-up {
+    0%   { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-scroll-slide-up {
+      animation: scroll-slide-up 2s ease-out both;
+      animation-delay: var(--delay, 0ms);
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+    }
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f3c300;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d81b60; 
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ad1457;
+}
