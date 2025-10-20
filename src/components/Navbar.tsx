@@ -13,9 +13,9 @@ export default function Navbar(){
         <div className="navBar sticky top-0 z-100">
 
             {/* Mobile Display */}
-            <div className="relative bg-yellow flex items-center h-15 lg:hidden justify-between px-3 shadow-md">
+            <div className="relative bg-neutral-300/50 backdrop-blur flex items-center h-18 lg:hidden justify-between px-3 shadow-md">
                 <button onClick={() => setIsActive(!isActive)}><MenuIcon className="h-10 w-10 text-pink"/></button>
-                <NavLink to='/' className="flex items-center"><header className="text-pink font-bold text-2xl absolute left-1/2 transform -translate-x-1/2">G·on</header></NavLink>
+                <NavLink to='/' className="flex items-center"><header className="text-pink font-bold text-2xl absolute left-1/2 transform -translate-x-1/2">G·ON</header></NavLink>
                 <div className="flex gap-3">
                     <a href=""><UserIcon className="h-10 w-8 text-pink"/></a>
                     <a href=""><CartIcon className="h-10 w-8 text-pink"/></a>
@@ -24,12 +24,8 @@ export default function Navbar(){
 
             {isActive && (<div className="fixed bg-black/20 inset-0 z-[900] lg:hidden" onClick={() => setIsActive(false)}></div>)}
 
-            <aside className={`fixed top-0 left-0 h-[100vh] w-45 bg-white shadow-md z-[1000] flex flex-col transition-transform duration-500 ease-in-out ${isActive ? "translate-x-0 opacity-100 pointer-events-auto" : "-translate-x-full opacity-0 pointer-events-none"} lg:hidden`}>
-                <div className="px-3 pt-3">
-                    <button onClick={() => setIsActive(!isActive)}><MenuIcon className="h-10 w-10 text-pink"/></button>
-                </div>
+            <aside className={`fixed top-0 left-0 h-[100vh] rounded-r-2xl w-45 bg-neutral-300/50 backdrop-blur shadow-md z-[1000] flex flex-col transition-transform duration-500 ease-in-out ${isActive ? "translate-x-0 opacity-100 pointer-events-auto" : "-translate-x-full opacity-0 pointer-events-none"} lg:hidden`}>
                 <nav className="flex flex-col gap-2 my-3 text-blue">
-                    <hr className="opacity-50"/>
                     <NavLink onClick={() => setIsActive(false)} to="/" className="p-3">Tienda</NavLink>
                     <hr className="opacity-50"/>
                     <a href="" className="p-3">Más Vendidos</a>
@@ -40,8 +36,8 @@ export default function Navbar(){
             </aside>
 
             {/* Desktop Display */}
-            <div className="sticky top-0 hidden lg:flex bg-yellow flex items-center h-15 justify-between px-10 shadow-md">
-                <NavLink to='/'><header className="text-pink font-bold text-2xl">G·on</header></NavLink>
+            <div className="sticky top-0 hidden lg:flex bg-neutral-300/50 backdrop-blur flex items-center h-20 justify-between px-10 shadow-md">
+                <NavLink to='/'><header className="text-pink font-bold text-3xl">G·ON</header></NavLink>
                 <nav className="text-blue">
                     <NavLink to="/" className="font-semibold p-3 hover:text-pink-600 tranform-all duration-100 hover:underline">Tienda</NavLink>
                     <a href="" className="font-semibold p-3 hover:text-pink-600 tranform-all duration-100 hover:underline">Sobre Nosotros</a>

@@ -39,7 +39,7 @@
       animation: scroll-slide-up 2s ease-out both;
       animation-delay: var(--delay, 0ms);
       animation-timeline: view();
-      animation-range: entry 0% cover 30%;
+      animation-range: entry 0% cover 35%;
     }
   }
 }
@@ -50,7 +50,7 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #f3c300;
+  background: #ececec;
 }
 
 ::-webkit-scrollbar-thumb {

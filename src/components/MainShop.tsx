@@ -69,30 +69,30 @@ export default function MainShop(){
       </div>
 
       {/* Filters for Desktop */}
-      <div className="hidden lg:flex gap-5 mx-auto my-15 lg:w-2/4 items-center bg-yellow p-3 rounded-full shadow-md">
-        <div className="flex gap-2 mx-auto">
+      <div className="hidden lg:flex gap-5 mx-auto my-15 lg:w-2/4 items-center bg-neutral-300/50 backdrop-blur p-3 rounded-full shadow-md">
+        <div className="flex gap-2 mx-auto text-blue">
           <h2 className="text-lg font-semibold">Filtros:</h2>
-          <button onClick={() => setFilter('todo')} className={`w-18 h-8 bg-neutral-200 rounded-lg cursor-pointer ${filter === "todo" ? "bg-pink text-white transition-all duration-300" : ""}`}>Todo</button>
+          <button onClick={() => setFilter('todo')} className={`w-18 h-8 bg-white rounded-lg cursor-pointer ${filter === "todo" ? "bg-pink text-white transition-all duration-300" : ""}`}>Todo</button>
           <span>|</span>
-          <button onClick={() => setFilter('mujer')} className={`w-18 h-8 bg-neutral-200 rounded-lg cursor-pointer ${filter === "mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Mujer</button>
-          <button onClick={() => setFilter('inferior mujer')} className={`w-30 h-8 bg-neutral-200 rounded-lg cursor-pointer ${filter === "inferior mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Inferior</button>
-          <button onClick={() => setFilter('superior mujer')} className={`w-30 h-8 bg-neutral-200 rounded-lg cursor-pointer ${filter === "superior mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Superior</button>
+          <button onClick={() => setFilter('mujer')} className={`w-18 h-8 bg-white rounded-lg cursor-pointer ${filter === "mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Mujer</button>
+          <button onClick={() => setFilter('inferior mujer')} className={`w-30 h-8 bg-white rounded-lg cursor-pointer ${filter === "inferior mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Inferior</button>
+          <button onClick={() => setFilter('superior mujer')} className={`w-30 h-8 bg-white rounded-lg cursor-pointer ${filter === "superior mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Superior</button>
           <span>|</span>
-          <button onClick={() => setFilter('hombre')} className={`w-18 h-8 bg-neutral-200 rounded-lg cursor-pointer ${filter === "hombre" ? "bg-pink text-white transition-all duration-300" : ""}`}>Hombre</button>
-          <button onClick={() => setFilter('inferior hombre')} className={`w-30 h-8 bg-neutral-200 rounded-lg cursor-pointer ${filter === "inferior hombre" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Inferior</button>
-          <button onClick={() => setFilter('superior hombre')} className={`w-30 h-8 bg-neutral-200 rounded-lg cursor-pointer ${filter === "superior hombre" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Superior</button>
+          <button onClick={() => setFilter('hombre')} className={`w-18 h-8 bg-white rounded-lg cursor-pointer ${filter === "hombre" ? "bg-pink text-white transition-all duration-300" : ""}`}>Hombre</button>
+          <button onClick={() => setFilter('inferior hombre')} className={`w-30 h-8 bg-white rounded-lg cursor-pointer ${filter === "inferior hombre" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Inferior</button>
+          <button onClick={() => setFilter('superior hombre')} className={`w-30 h-8 bg-white rounded-lg cursor-pointer ${filter === "superior hombre" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Superior</button>
         </div>
       </div>
 
       {/* Filters for Mobile */}
       <div className="flex lg:hidden">
-        <button onClick={() => setIsActive(!isActive)} className="text-lg bg-yellow m-5 p-2 text-pink font-semibold rounded-lg w-50 mx-auto">Filtros</button>
+        <button onClick={() => setIsActive(!isActive)} className="text-lg bg-pink m-5 p-2 text-white font-semibold rounded-lg w-50 mx-auto">Filtros</button>
       </div>
 
       {isActive && (<div className="fixed bg-black/20 inset-0 z-[900] lg:hidden" onClick={() => setIsActive(false)}></div>)}
 
       <div className={`absolute z-[1000] shadow-md fixed w-full bottom-0 transition-transform duration-500 ease-in-out ${isActive ? "translate-y-0 opacity-100 pointer-events-auto" : "translate-y-full opacity-0 pointer-events-none"}`}>
-        <div className="flex flex-col gap-3 mx-auto bg-white p-5 shadow-lg p-10 h-[50vh]">
+        <div className="flex flex-col gap-3 mx-auto bg-neutral-300/50 backdrop-blur p-5 shadow-xl p-10 h-[60vh] rounded-t-3xl text-blue">
           <button onClick={() => setFilter('todo')} className={`w-18 h-8 bg-neutral-200 rounded-lg cursor-pointer ${filter === "todo" ? "bg-pink text-white transition-all duration-300" : ""}`}>Todo</button>
           <hr className="text-blue my-1"/>
           <button onClick={() => setFilter('mujer')} className={`w-18 h-8 bg-neutral-200 rounded-lg cursor-pointer ${filter === "mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Mujer</button>
