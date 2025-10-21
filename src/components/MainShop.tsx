@@ -65,7 +65,7 @@ export default function MainShop(){
     <div>
       <div className="relative flex justify-center lg:m-5 items-center">
         <h1 className="absolute font-semibold text-4xl lg:text-7xl text-pink">Tienda</h1>
-        <img className="lg:rounded-xl shadow-lg" src="https://picsum.photos/1600/400" alt="" />
+        <img className="lg:rounded-xl shadow-md" src="https://picsum.photos/1600/400" alt="" />
       </div>
 
       {/* Filters for Desktop */}
