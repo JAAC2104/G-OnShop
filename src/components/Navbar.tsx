@@ -17,8 +17,8 @@ export default function Navbar(){
                 <button onClick={() => setIsActive(!isActive)}><MenuIcon className="h-10 w-10 text-pink"/></button>
                 <NavLink to='/' className="flex items-center"><header className="text-pink font-bold text-2xl absolute left-1/2 transform -translate-x-1/2">G·ON</header></NavLink>
                 <div className="flex gap-3">
-                    <a href=""><UserIcon className="h-10 w-8 text-pink"/></a>
-                    <a href=""><CartIcon className="h-10 w-8 text-pink"/></a>
+                    <NavLink to='/usuario'><UserIcon className="h-10 w-8 text-pink"/></NavLink>
+                    <NavLink to='/micarrito'><CartIcon className="h-10 w-8 text-pink"/></NavLink>
                 </div>
             </div>
 
@@ -28,9 +28,9 @@ export default function Navbar(){
                 <nav className="flex flex-col gap-2 my-3 text-blue">
                     <NavLink onClick={() => setIsActive(false)} to="/" className="p-3">Tienda</NavLink>
                     <hr className="opacity-50"/>
-                    <a href="" className="p-3">Más Vendidos</a>
+                    <NavLink to='/masvendidos' className="p-3">Más Vendidos</NavLink>
                     <hr className="opacity-50"/>
-                    <a href="" className="p-3">Sobre Nosotros</a>
+                    <NavLink to='sobrenosotros' className="p-3">Sobre Nosotros</NavLink>
                     <hr className="opacity-50"/>
                 </nav>
             </aside>
@@ -40,12 +40,12 @@ export default function Navbar(){
                 <NavLink to='/'><header className="text-pink font-bold text-3xl">G·ON</header></NavLink>
                 <nav className="text-blue">
                     <NavLink to="/" className="font-semibold p-3 hover:text-pink-600 tranform-all duration-100 hover:underline">Tienda</NavLink>
-                    <a href="" className="font-semibold p-3 hover:text-pink-600 tranform-all duration-100 hover:underline">Sobre Nosotros</a>
-                    <a href="" className="font-semibold p-3 hover:text-pink-600 tranform-all duration-100 hover:underline">Más Vendidos</a>
+                    <NavLink to='/sobrenosotros' className="font-semibold p-3 hover:text-pink-600 tranform-all duration-100 hover:underline">Sobre Nosotros</NavLink>
+                    <NavLink to='/masvendidos' className="font-semibold p-3 hover:text-pink-600 tranform-all duration-100 hover:underline">Más Vendidos</NavLink>
                 </nav>
                 <div className="flex gap-5">
-                    <a href=""><UserIcon className="h-8 w-8 hover:scale-110 transition-all duration-200 text-pink"/></a>
-                    <a href=""><CartIcon className="h-7 w-7 hover:scale-110 transition-all duration-200 text-pink"/></a>
+                    <NavLink to='/usuario'><UserIcon className="h-8 w-8 hover:scale-110 transition-all duration-200 text-pink"/></NavLink>
+                    <NavLink to='/micarrito'><CartIcon className="h-7 w-7 hover:scale-110 transition-all duration-200 text-pink"/></NavLink>
                 </div>
             </div>
 

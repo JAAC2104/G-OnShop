@@ -11,7 +11,7 @@ export default function Footer() {
 
       <div className="border-t border-white/10 py-5 text-center text-xs text-blue">
         <p>© 2025 G·on</p>
-        <a href="" className="mt-2 inline-block text-blue-950 hover:text-pink-500 transition-all duration-200">Back to top ↑</a>
+        <a href="" className="mt-2 inline-block text-blue-950 hover:text-pink-500 transition-all duration-200">Volver al inicio ↑</a>
       </div>
     </footer>
   );

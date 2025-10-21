@@ -42,7 +42,7 @@ export default function ProductPage() {
         <Link to="/" className="text-blue font-semibold m-2">← Volver al catálogo</Link>
     
         <section className="product flex flex-col lg:flex-row lg:gap-20 items-center mt-8 justify-center m-5">
-            <img src={product.img} alt={product.name} className="w-[300px] lg:w-[400px] rounded-md shadow-lg"/>
+            <img src={product.img} alt={product.name} className="w-[300px] lg:w-[400px] rounded-md shadow-md"/>
 
             <div className="font-semibold text-blue m-3">
                 <h1 className="text-xl">{product.name}</h1>
