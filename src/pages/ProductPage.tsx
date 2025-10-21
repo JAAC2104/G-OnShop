@@ -65,7 +65,7 @@ export default function ProductPage() {
                       <option value="xl">XL</option>
                     </select>
                   </div>
-                  <button className="bg-pink p-2 rounded-md m-5 text-white cursor-pointer" type="submit" onClick={() => alert("Producto agregado al carrito 🛒")}>Agregar al carrito</button>
+                  <button className="bg-yellow p-2 rounded-md m-5 text-blue cursor-pointer" type="submit" onClick={() => alert("Producto agregado al carrito 🛒")}>Agregar al carrito</button>
                 </form>
             </div>
         </section>

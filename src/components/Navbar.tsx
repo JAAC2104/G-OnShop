@@ -24,7 +24,7 @@ export default function Navbar(){
 
             {isActive && (<div className="fixed bg-black/20 inset-0 z-[900] lg:hidden" onClick={() => setIsActive(false)}></div>)}
 
-            <aside className={`fixed top-0 left-0 h-[100vh] rounded-r-2xl w-45 bg-neutral-300/50 backdrop-blur shadow-md z-[1000] flex flex-col transition-transform duration-500 ease-in-out ${isActive ? "translate-x-0 opacity-100 pointer-events-auto" : "-translate-x-full opacity-0 pointer-events-none"} lg:hidden`}>
+            <aside className={`fixed top-0 left-0 h-[100vh] rounded-r-2xl w-60 bg-neutral-300/50 backdrop-blur shadow-md z-[1000] flex flex-col transition-transform duration-500 ease-in-out ${isActive ? "translate-x-0 opacity-100 pointer-events-auto" : "-translate-x-full opacity-0 pointer-events-none"} lg:hidden`}>
                 <nav className="flex flex-col gap-2 my-3 text-blue">
                     <NavLink onClick={() => setIsActive(false)} to="/" className="p-3">Tienda</NavLink>
                     <hr className="opacity-50"/>
@@ -36,7 +36,7 @@ export default function Navbar(){
             </aside>
 
             {/* Desktop Display */}
-            <div className="sticky top-0 hidden lg:flex bg-neutral-300/50 backdrop-blur flex items-center h-20 justify-between px-10 shadow-md">
+            <div className="sticky top-0 hidden lg:flex bg-neutral-300/0 backdrop-blur flex items-center h-20 justify-between px-10 shadow-md">
                 <NavLink to='/'><header className="text-pink font-bold text-3xl">G·ON</header></NavLink>
                 <nav className="text-blue">
                     <NavLink to="/" className="font-semibold p-3 hover:text-pink-600 tranform-all duration-100 hover:underline">Tienda</NavLink>
