@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "../firebase/firebase";
 import { database } from "../firebase/firebase";
-import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut, updateProfile, GoogleAuthProvider, signInWithPopup, signInWithRedirect, type User, type UserCredential, getRedirectResult } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, GoogleAuthProvider, signInWithPopup, signInWithRedirect, type User, type UserCredential, getRedirectResult, onIdTokenChanged } from "firebase/auth";
 import { doc, setDoc, serverTimestamp, getDoc } from "firebase/firestore";
 import { browserPopupRedirectResolver, browserLocalPersistence, setPersistence } from "firebase/auth";
 
@@ -35,12 +35,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
-      setInitializing(false);
-    });
-    return unsub;
-  }, []);
+  const unsub = onIdTokenChanged(auth, (user) => {
+    setCurrentUser(user);
+    setInitializing(false);
+  });
+
+  getRedirectResult(auth)
+    .then((res) => { if (res?.user) ensureUserDoc(res.user); })
+    .catch(console.error);
+
+  return unsub;
+}, []);
 
   useEffect(() => {
   getRedirectResult(auth)
@@ -110,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function signInWithGoogleRedirect(): Promise<void> {
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: "select_account" });
-  await signInWithRedirect(auth, provider);
+  await signInWithRedirect(auth, provider, browserPopupRedirectResolver);
 }
 
   const value: AuthContextValue = {

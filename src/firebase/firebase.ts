@@ -1,6 +1,5 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
-import { browserLocalPersistence, indexedDBLocalPersistence, initializeAuth } from "firebase/auth";
-import { getAuth } from "firebase/auth/cordova";
+import { browserLocalPersistence, browserPopupRedirectResolver, indexedDBLocalPersistence, initializeAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -14,9 +13,9 @@ const firebaseConfig = {
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-export const auth =
-  app.name === "[DEFAULT]" && getApps().length === 1
-    ? initializeAuth(app, { persistence: [indexedDBLocalPersistence, browserLocalPersistence] })
-    : getAuth(app);
+export const auth = initializeAuth(app, {
+  persistence: [indexedDBLocalPersistence, browserLocalPersistence],
+  popupRedirectResolver: browserPopupRedirectResolver,
+});
 
 export const database = getFirestore(app);
