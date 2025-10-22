@@ -8,7 +8,7 @@ export default function LoginPage(){
     const passwordRef = useRef<HTMLInputElement>(null);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
-    const { logIn, signInWithGoogle, signInWithGoogleRedirect, initializing, currentUser } = useAuth();
+    const { logIn, signInWithGoogle, initializing, currentUser } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
