@@ -44,26 +44,26 @@ export default function LoginPage(){
                 <label htmlFor="password">Contraseña: </label>
                 <input type="password" id="password" className="border-2 border-pink rounded-md p-1 bg-neutral-200" ref={passwordRef} />
                 <button type="submit" disabled={loading} className={`mt-10 mx-auto w-[220px] h-10 rounded-md text-md ${loading ? "bg-neutral-400" : "bg-pink text-white cursor-pointer"}`}>Iniciar Sesión</button>
-                <div className="hidden lg:flex">
+                <div >
                     <GoogleButton onClick={async () => {
                         try {const cred = await signInWithGoogle(); 
                             if (cred) {navigate("/", { replace: true });
                             } else {console.log("Redirecting to Google Sign-In...");}
                             } catch (err) {console.error(err); setError("Error al iniciar sesión con Google");}}}label="Continuar con Google"/>
                 </div>
-                <div className="flex lg:hidden">
+                {/* <div className="flex lg:hidden">
                     <GoogleButton
-                        onClick={async () => {
-                            try {
-                            await signInWithGoogleRedirect!();
-                            } catch (err) {
-                            console.error(err);
-                            setError("No se pudo iniciar sesión con Google (redir).");
-                            }
-                        }}
-                        label="Continuar con Google"
-                        />
-                </div>
+                    onClick={async () => {
+                        try {
+                        await signInWithGoogleRedirect!(); // NO hagas navigate aquí
+                        } catch (e) {
+                        console.error(e);
+                        setError("No se pudo iniciar sesión con Google (redirect).");
+                        }
+                    }}
+                    label="Continuar con Google"
+                    />
+                </div> */}
             </form>
         </div>
         <div className="m-2 mx-auto w-[300px] lg:w-lg p-5 flex justify-center gap-3">

@@ -41,11 +41,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
 
   getRedirectResult(auth)
-    .then((res) => { if (res?.user) ensureUserDoc(res.user); })
+    .then(res => { if (res?.user) ensureUserDoc(res.user); })
     .catch(console.error);
 
   return unsub;
-}, []);
+    }, []);
 
   useEffect(() => {
   getRedirectResult(auth)
@@ -115,8 +115,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function signInWithGoogleRedirect(): Promise<void> {
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: "select_account" });
-  await signInWithRedirect(auth, provider, browserPopupRedirectResolver);
-}
+  await signInWithRedirect(auth, provider);
+  }
 
   const value: AuthContextValue = {
     currentUser,
