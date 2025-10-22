@@ -26,11 +26,11 @@ export default function Navbar(){
 
             <aside className={`fixed top-0 left-0 h-[100vh] rounded-r-2xl w-60 bg-neutral-300/50 backdrop-blur shadow-md z-[1000] flex flex-col transition-transform duration-500 ease-in-out ${isActive ? "translate-x-0 opacity-100 pointer-events-auto" : "-translate-x-full opacity-0 pointer-events-none"} lg:hidden`}>
                 <nav className="flex flex-col gap-2 my-3 text-blue">
-                    <NavLink onClick={() => setIsActive(false)} to="/" className="p-3">Tienda</NavLink>
+                    <NavLink onClick={() => setIsActive(!isActive)} to="/" className="p-3">Tienda</NavLink>
                     <hr className="opacity-50"/>
-                    <NavLink to='/masvendidos' className="p-3">Más Vendidos</NavLink>
+                    <NavLink onClick={() => setIsActive(!isActive)} to='/masvendidos' className="p-3">Más Vendidos</NavLink>
                     <hr className="opacity-50"/>
-                    <NavLink to='sobrenosotros' className="p-3">Sobre Nosotros</NavLink>
+                    <NavLink onClick={() => setIsActive(!isActive)} to='sobrenosotros' className="p-3">Sobre Nosotros</NavLink>
                     <hr className="opacity-50"/>
                 </nav>
             </aside>
@@ -39,9 +39,9 @@ export default function Navbar(){
             <div className="sticky top-0 hidden lg:flex bg-neutral-300/0 backdrop-blur flex items-center h-20 justify-between px-10 shadow-md">
                 <NavLink to='/'><header className="text-pink font-bold text-3xl">G·ON</header></NavLink>
                 <nav className="text-blue">
-                    <NavLink to="/" className="font-semibold p-3 hover:text-pink-600 tranform-all duration-100 hover:underline">Tienda</NavLink>
-                    <NavLink to='/sobrenosotros' className="font-semibold p-3 hover:text-pink-600 tranform-all duration-100 hover:underline">Sobre Nosotros</NavLink>
-                    <NavLink to='/masvendidos' className="font-semibold p-3 hover:text-pink-600 tranform-all duration-100 hover:underline">Más Vendidos</NavLink>
+                    <NavLink to="/" className="font-semibold p-3 hover:text-pink-600 tranform-all duration-100">Tienda</NavLink>
+                    <NavLink to='/sobrenosotros' className="font-semibold p-3 hover:text-pink-600 tranform-all duration-100">Sobre Nosotros</NavLink>
+                    <NavLink to='/masvendidos' className="font-semibold p-3 hover:text-pink-600 tranform-all duration-100">Más Vendidos</NavLink>
                 </nav>
                 <div className="flex gap-5">
                     <NavLink to='/usuario'><UserIcon className="h-8 w-8 hover:scale-110 transition-all duration-200 text-pink"/></NavLink>

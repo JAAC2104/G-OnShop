@@ -1,4 +1,5 @@
-import { initializeApp } from "firebase/app";
+import { getApp, getApps, initializeApp } from "firebase/app";
+import { browserLocalPersistence, indexedDBLocalPersistence, setPersistence } from "firebase/auth";
 import { getAuth } from "firebase/auth/cordova";
 import { getFirestore } from "firebase/firestore";
 
@@ -11,6 +12,11 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_APP_ID
 };
 
-const app = initializeApp(firebaseConfig);
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+
 export const auth = getAuth(app);
 export const database = getFirestore(app);
+
+setPersistence(auth, indexedDBLocalPersistence).catch(() => {
+  return setPersistence(auth, browserLocalPersistence);
+});
