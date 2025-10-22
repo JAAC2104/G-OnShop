@@ -1,7 +1,7 @@
 type GoogleButtonProps = {
   onClick?: () => void;
-  label?: string; // opcional: por defecto "Sign in with Google"
-  className?: string; // para extender estilos si quieres
+  label?: string;
+  className?: string;
 };
 
 export function GoogleButton({ onClick, label = "Sign in with Google", className = "" }: GoogleButtonProps) {

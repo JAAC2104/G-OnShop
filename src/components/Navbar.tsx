@@ -4,8 +4,6 @@ import UserIcon from "../assets/userIcon.svg?react";
 import CartIcon from "../assets/cartIcon.svg?react";
 import { useState } from "react";
 
-
-
 export default function Navbar(){
     const [isActive, setIsActive] = useState(false);
 

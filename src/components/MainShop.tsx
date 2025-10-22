@@ -112,7 +112,7 @@ export default function MainShop(){
       <div className="grid grid-cols-2 md:grid-cols-3 lg:w-6/7 lg:grid-cols-4 m-2 mt-2 lg:mx-auto justify-center items-center gap-5">
         {filteredProducts.map(product => (
           <NavLink key={product.id} to={`/p/${product.id}/${product.name}`}>
-            <div className="animate-scroll-slide-up flex flex-col group hover:scale-105 transition-all duration-200 h-[270px] md:h-[300px] lg:w-[300px] lg:h-[350px] cursor-pointer mx-auto">
+            <div className="animate-scroll-slide-up flex flex-col group hover:scale-102 transition-all duration-200 h-[270px] md:h-[300px] lg:w-[300px] lg:h-[350px] cursor-pointer mx-auto">
               <div className="max-h-[400px] max-w-[400px] relative">
                 <img className="rounded-md" src={product.img} alt="Product Image" />
                 <div className="absolute bottom-0 text-blue bg-neutral-300/80 font-semibold w-full p-1 text-center opacity-0 group-hover:opacity-100 rounded-b-md transition-all duration-300">Ver Producto</div>
