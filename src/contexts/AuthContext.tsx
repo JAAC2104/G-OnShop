@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "../firebase/firebase";
 import { database } from "../firebase/firebase";
-import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut, updateProfile, GoogleAuthProvider, signInWithPopup, signInWithRedirect, type User, type UserCredential } from "firebase/auth";
+import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut, updateProfile, GoogleAuthProvider, signInWithPopup, signInWithRedirect, type User, type UserCredential, getRedirectResult } from "firebase/auth";
 import { doc, setDoc, serverTimestamp, getDoc } from "firebase/firestore";
 import { browserPopupRedirectResolver, browserLocalPersistence, setPersistence } from "firebase/auth";
 
@@ -41,6 +41,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
     return unsub;
   }, []);
+
+  useEffect(() => {
+  getRedirectResult(auth)
+    .then((result) => {
+      if (result?.user) {
+        ensureUserDoc(result.user);
+      }
+    })
+    .catch(console.error);
+}, []);
 
   async function ensureUserDoc(u: User, extra?: Partial<{ phone: string }>) {
     const ref = doc(database, "users", u.uid);
