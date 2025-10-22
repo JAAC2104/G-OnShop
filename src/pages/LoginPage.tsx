@@ -52,16 +52,17 @@ export default function LoginPage(){
                             } catch (err) {console.error(err); setError("Error al iniciar sesión con Google");}}}label="Continuar con Google"/>
                 </div>
                 <div className="flex lg:hidden">
-                    <GoogleButton onClick={async () => {try {
-                    await signInWithGoogleRedirect!();
-                        console.log("Redirigiendo a Google Sign-In...");
-                        } catch (err) {
-                        console.error(err);
-                        setError("Error al iniciar sesión con Google");
-                        }
-                    }}
-                    label="Continuar con Google"
-                    />
+                    <GoogleButton
+                        onClick={async () => {
+                            try {
+                            await signInWithGoogleRedirect!();
+                            } catch (err) {
+                            console.error(err);
+                            setError("No se pudo iniciar sesión con Google (redir).");
+                            }
+                        }}
+                        label="Continuar con Google"
+                        />
                 </div>
             </form>
         </div>
