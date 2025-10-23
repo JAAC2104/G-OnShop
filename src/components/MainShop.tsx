@@ -72,15 +72,15 @@ export default function MainShop(){
       <div className="hidden lg:flex gap-5 mx-auto my-15 lg:w-2/4 items-center bg-neutral-300/50 backdrop-blur p-3 rounded-full shadow-md">
         <div className="flex gap-2 mx-auto text-blue">
           <h2 className="text-lg font-semibold">Filtros:</h2>
-          <button onClick={() => setFilter('todo')} className={`w-18 h-8 bg-white rounded-lg cursor-pointer ${filter === "todo" ? "bg-pink text-white transition-all duration-300" : ""}`}>Todo</button>
+          <button onClick={() => setFilter('todo')} className={`w-18 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "todo" ? "bg-pink text-white transition-all duration-300" : ""}`}>Todo</button>
           <span>|</span>
-          <button onClick={() => setFilter('mujer')} className={`w-18 h-8 bg-white rounded-lg cursor-pointer ${filter === "mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Mujer</button>
-          <button onClick={() => setFilter('inferior mujer')} className={`w-30 h-8 bg-white rounded-lg cursor-pointer ${filter === "inferior mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Inferior</button>
-          <button onClick={() => setFilter('superior mujer')} className={`w-30 h-8 bg-white rounded-lg cursor-pointer ${filter === "superior mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Superior</button>
+          <button onClick={() => setFilter('mujer')} className={`w-18 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Mujer</button>
+          <button onClick={() => setFilter('inferior mujer')} className={`w-30 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "inferior mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Inferior</button>
+          <button onClick={() => setFilter('superior mujer')} className={`w-30 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "superior mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Superior</button>
           <span>|</span>
-          <button onClick={() => setFilter('hombre')} className={`w-18 h-8 bg-white rounded-lg cursor-pointer ${filter === "hombre" ? "bg-pink text-white transition-all duration-300" : ""}`}>Hombre</button>
-          <button onClick={() => setFilter('inferior hombre')} className={`w-30 h-8 bg-white rounded-lg cursor-pointer ${filter === "inferior hombre" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Inferior</button>
-          <button onClick={() => setFilter('superior hombre')} className={`w-30 h-8 bg-white rounded-lg cursor-pointer ${filter === "superior hombre" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Superior</button>
+          <button onClick={() => setFilter('hombre')} className={`w-18 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "hombre" ? "bg-pink text-white transition-all duration-300" : ""}`}>Hombre</button>
+          <button onClick={() => setFilter('inferior hombre')} className={`w-30 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "inferior hombre" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Inferior</button>
+          <button onClick={() => setFilter('superior hombre')} className={`w-30 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "superior hombre" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Superior</button>
         </div>
       </div>
 
