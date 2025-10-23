@@ -13,7 +13,7 @@ export default function LoginPage(){
 
     useEffect(() => {
         if (!initializing && currentUser) {
-            navigate("/", { replace: true });
+            navigate("/usuario", { replace: true });
         }
     }, [initializing, currentUser, navigate]);
 
@@ -26,7 +26,7 @@ export default function LoginPage(){
             setError("")
             setLoading(true);
             await logIn(emailRef.current?.value, passwordRef.current?.value);
-            navigate("/", { replace: true})
+            navigate("/usuario", { replace: true})
         } catch{
             setError("Invalid credentials")
         }
@@ -47,15 +47,15 @@ export default function LoginPage(){
                 <div className="flex">
                     <GoogleButton onClick={async () => {
                         try {const cred = await signInWithGoogle(); 
-                            if (cred) {navigate("/", { replace: true });
+                            if (cred) {navigate("/usuario", { replace: true });
                             } else {console.log("Redirecting to Google Sign-In...");}
                             } catch (err) {console.error(err); setError("Error al iniciar sesión con Google");}}}label="Continuar con Google"/>
                 </div>
             </form>
         </div>
         <div className="m-2 mx-auto w-[300px] lg:w-lg p-5 flex justify-center gap-3">
-            <span>No tienes una cuenta?</span>
-            <NavLink to="/registrarse" className="underline hover:text-pink-500">Regístrate</NavLink>
+            <span className="text-blue">No tienes una cuenta?</span>
+            <NavLink to="/registrarse" className="underline text-blue-950 hover:text-pink-500">Regístrate</NavLink>
         </div>
     </>)
 }

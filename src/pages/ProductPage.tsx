@@ -39,7 +39,7 @@ export default function ProductPage() {
 
   return (<>
     <main className="container mt-5 flex flex-col mx-auto">
-        <Link to="/" className="text-blue font-semibold m-2">← Volver al catálogo</Link>
+        <Link to="/" className="text-blue-950 hover:text-pink-600 tranform-all duration-300 font-semibold m-2">← Volver a la tienda</Link>
     
         <section className="product flex flex-col lg:flex-row lg:gap-20 items-center mt-8 justify-center m-5">
             <img src={product.img} alt={product.name} className="w-[300px] lg:w-[400px] rounded-md shadow-md"/>
@@ -111,7 +111,7 @@ export default function ProductPage() {
             <div
               className="
                 absolute bottom-0
-                text-blue bg-white/60 w-full p-1 text-center
+                text-blue font-semibold bg-white/60 w-full p-1 text-center
                 opacity-0 group-hover:opacity-100 transition-all duration-300
               "
             >
