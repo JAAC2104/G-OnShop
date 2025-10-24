@@ -28,7 +28,7 @@ export default function LoginPage(){
             await logIn(emailRef.current?.value, passwordRef.current?.value);
             navigate("/usuario", { replace: true})
         } catch{
-            setError("Invalid credentials")
+            setError("Credenciales Inválidos")
         }
 
         setLoading(false);

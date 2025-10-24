@@ -56,7 +56,7 @@ export default function SignupPage(){
                 <button type="submit" disabled={loading} className={`mt-5 mx-auto w-[220px] h-10 rounded-md text-md ${loading ? "bg-neutral-400" : "bg-pink text-white cursor-pointer"}`}>Registrarse</button>
             </form>
         </div>
-        <div className="m-2 mx-auto w-[300px] lg:w-lg p-5 flex justify-center gap-3">
+        <div className="m-2 mx-auto w-[300px] lg:w-lg p-5 flex justify-center gap-1">
             <span className="text-blue">Ya tienes una cuenta?</span>
             <NavLink to="/iniciarsesion" className="underline text-blue-950 hover:text-pink-500">Iniciar Sesión</NavLink>
         </div>
