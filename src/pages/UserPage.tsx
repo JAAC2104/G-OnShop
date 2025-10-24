@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
 import { useAuth } from "../contexts/AuthContext"
 import { useUserProfile } from "../hooks/useUserProfile";
-import Footer from "../components/Footer";
 
 
 export default function UserPage(){
