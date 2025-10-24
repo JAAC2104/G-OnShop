@@ -5,6 +5,7 @@ import { NavLink, useNavigate } from "react-router";
 export default function SignupPage(){
     const nameRef = useRef<HTMLInputElement>(null);
     const phoneRef = useRef<HTMLInputElement>(null);
+    const addressRef = useRef<HTMLInputElement>(null);
     const emailRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
     const [error, setError] = useState("");
@@ -21,9 +22,9 @@ export default function SignupPage(){
     async function handleSubmit(e: FormEvent<HTMLFormElement>){
         e.preventDefault();
 
-        if(!emailRef.current || !passwordRef.current || !nameRef.current || !phoneRef.current ) return
+        if(!emailRef.current || !passwordRef.current || !nameRef.current || !phoneRef.current || !addressRef.current ) return
 
-        const signupInfo = {email: emailRef.current?.value, password: passwordRef.current?.value, name: nameRef.current?.value, phone: phoneRef.current?.value}
+        const signupInfo = {email: emailRef.current?.value, password: passwordRef.current?.value, name: nameRef.current?.value, phone: phoneRef.current?.value, address: addressRef.current?.value}
         
         try{
             setError("")
@@ -48,6 +49,8 @@ export default function SignupPage(){
                 <input type="email" id="email" className="border-2 border-pink rounded-md p-1 bg-neutral-200" ref={emailRef} />
                 <label className="text-blue" htmlFor="phone">Teléfono: </label>
                 <input type="number" id="phone" className="border-2 border-pink rounded-md p-1 bg-neutral-200" ref={phoneRef} />
+                <label className="text-blue" htmlFor="address">Dirección: </label>
+                <input type="text" id="address" className="border-2 border-pink rounded-md p-1 bg-neutral-200" ref={addressRef} />
                 <label className="text-blue" htmlFor="password">Contraseña: </label>
                 <input type="password" id="password" className="border-2 border-pink rounded-md p-1 bg-neutral-200" ref={passwordRef} />
                 <button type="submit" disabled={loading} className={`mt-5 mx-auto w-[220px] h-10 rounded-md text-md ${loading ? "bg-neutral-400" : "bg-pink text-white cursor-pointer"}`}>Registrarse</button>

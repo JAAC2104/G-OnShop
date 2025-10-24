@@ -38,7 +38,7 @@ export default function Navbar(){
             </aside>
 
             {/* Desktop Display */}
-            <div className="sticky top-0 hidden lg:flex bg-neutral-300/0 backdrop-blur flex items-center h-20 justify-between px-10 shadow-md">
+            <div className="sticky top-0 hidden lg:flex bg-neutral-300/50 backdrop-blur flex items-center h-20 justify-between px-10 shadow-md">
                 <NavLink to='/'><header className="text-pink font-bold text-3xl">G·ON</header></NavLink>
                 <nav className="text-blue">
                     <NavLink to="/" className="font-semibold p-3 hover:text-pink-600 tranform-all duration-100">Tienda</NavLink>

@@ -52,7 +52,7 @@ export default function ProductPage() {
                     <label htmlFor="color">Seleccione el color:</label>
                     <div className="flex gap-3 m-2">
                       {colors.map((color) => (
-                        <button key={color.name} onClick={() => setSelected(color.name)} type="button" className={`h-6 w-6 rounded-full border-2 transition ${color.class} ${selected === color.name ? "border-black scale-110" : "border-transparent"}`}></button>))}
+                        <button key={color.name} onClick={() => setSelected(color.name)} type="button" className={`h-6 w-6 rounded-full border-2 transition cursor-pointer ${color.class} ${selected === color.name ? "border-black scale-110" : "border-transparent"}`}></button>))}
                     </div>
                   </div>
                   <div className="flex flex-col">
