@@ -3,8 +3,8 @@ import { auth } from "../firebase/firebase";
 import { database } from "../firebase/firebase";
 import {createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onIdTokenChanged, type User, type UserCredential, deleteUser, reauthenticateWithRedirect, reauthenticateWithPopup, reauthenticateWithCredential} from "firebase/auth";
 import {doc, setDoc, serverTimestamp, getDoc, getDocs, deleteDoc, collection} from "firebase/firestore";
-import { browserPopupRedirectResolver, browserLocalPersistence, setPersistence } from "firebase/auth";
-import { EmailAuthProvider } from "firebase/auth/web-extension";
+import { browserLocalPersistence, setPersistence } from "firebase/auth";
+import { EmailAuthProvider } from "firebase/auth";
 
 type SignUpInput = {
   email: string;
@@ -46,19 +46,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
-    const unsub = onIdTokenChanged(auth, (user) => {
-      setCurrentUser(user);
-      setInitializing(false);
-    });
+  const unsub = onIdTokenChanged(auth, (user) => {
+    setCurrentUser(user);
+    setInitializing(false);
+  });
 
-    getRedirectResult(auth)
-      .then((res) => {
-        if (res?.user) ensureUserDoc(res.user);
-      })
-      .catch(console.error);
+  getRedirectResult(auth)
+    .then((res) => {
+      if (res?.user) ensureUserDoc(res.user);
+    })
+    .catch(console.error);
 
-    return unsub;
-  }, []);
+  return unsub;
+}, []);
 
   async function ensureUserDoc(u: User, extra?: Partial<{ phone: string, address: string }>) {
     const ref = doc(database, "users", u.uid);
@@ -102,7 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await setPersistence(auth, browserLocalPersistence);
 
     try {
-      const cred = await signInWithPopup(auth, provider, browserPopupRedirectResolver);
+      const cred = await signInWithPopup(auth, provider);
       await ensureUserDoc(cred.user);
       return cred;
     } catch (e: any) {
@@ -111,7 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         e?.code === "auth/popup-blocked" ||
         e?.code === "auth/popup-closed-by-user"
       ) {
-        await signInWithRedirect(auth, provider, browserPopupRedirectResolver);
+        await signInWithRedirect(auth, provider);
         return;
       }
       throw e;
