@@ -33,6 +33,11 @@ export default function UserPage() {
     setIsEditing(false);
   }
 
+  function handleDelete(){
+    deleteAccount();
+    logOut();
+  }
+
   const InfoBlock = (
     <div className="flex flex-col gap-10 bg-neutral-300/50 backdrop-blur p-5 rounded-lg shadow-md break-words">
       <div>
@@ -210,7 +215,7 @@ export default function UserPage() {
           </button>
           <button
             className="bg-pink text-white p-2 rounded-md cursor-pointer hover:shadow-md"
-            onClick={() => deleteAccount()}
+            onClick={() => handleDelete()}
           >
             Continuar
           </button>
