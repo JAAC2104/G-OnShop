@@ -1,9 +1,10 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "../firebase/firebase";
 import { database } from "../firebase/firebase";
-import {createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onIdTokenChanged, type User, type UserCredential, deleteUser} from "firebase/auth";
+import {createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onIdTokenChanged, type User, type UserCredential, deleteUser, reauthenticateWithRedirect, reauthenticateWithPopup, reauthenticateWithCredential} from "firebase/auth";
 import {doc, setDoc, serverTimestamp, getDoc, getDocs, deleteDoc, collection} from "firebase/firestore";
 import { browserPopupRedirectResolver, browserLocalPersistence, setPersistence } from "firebase/auth";
+import { EmailAuthProvider } from "firebase/auth/web-extension";
 
 type SignUpInput = {
   email: string;
@@ -130,11 +131,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await deleteDoc(doc(database, "users", uid));
   }
 
-  async function deleteAccount() {
+  async function reauthenticateIfNeeded(user: User, opts?: { password?: string }) {
+    try {
+      await deleteUser(user);
+    } catch (err: any) {
+      if (err?.code !== "auth/requires-recent-login") throw err;
+      const providerId = user.providerData[0]?.providerId;
+
+      if (providerId === "password") {
+        if (!opts?.password || !user.email) {
+          throw new Error("Se requiere re-autenticación: proporciona la contraseña del usuario.");
+        }
+        const cred = EmailAuthProvider.credential(user.email, opts.password);
+        await reauthenticateWithCredential(user, cred);
+      } else if (providerId === "google.com") {
+        const googleProvider = new GoogleAuthProvider();
+        try {
+          await reauthenticateWithPopup(user, googleProvider);
+        } catch (e: any) {
+          await reauthenticateWithRedirect(user, googleProvider);
+          return;
+        }
+      } else {
+        throw new Error("Proveedor no soportado para re-autenticación en cliente.");
+      }
+      await deleteUser(user);
+    }
+  }
+
+  async function deleteAccount(opts?: { password?: string }) {
     const user = auth.currentUser;
     if (!user) throw new Error("No hay usuario autenticado.");
     await deleteUserData(user.uid);
-    await deleteUser(user);
+    await reauthenticateIfNeeded(user, { password: opts?.password });
     await signOut(auth);
   }
 

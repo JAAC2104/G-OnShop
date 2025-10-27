@@ -39,6 +39,7 @@ export default function UserPage() {
         <span className="font-semibold text-blue">Nombre: </span>
         {isEditing ? (
           <input
+            type="text"
             className="border-2 border-pink rounded-md p-1 bg-neutral-200"
             value={form.name}
             onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
@@ -57,6 +58,7 @@ export default function UserPage() {
         <span className="font-semibold text-blue">Número telefónico: </span>
         {isEditing ? (
           <input
+            type="number"
             className="border-2 border-pink rounded-md p-1 bg-neutral-200"
             value={form.phone}
             onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
@@ -98,7 +100,7 @@ export default function UserPage() {
   );
 
   const OptionsBlock = (
-    <div className="bg-neutral-300/50 backdrop-blur p-5 rounded-lg shadow-md flex justify-around items-center gap-10">
+    <div className="bg-neutral-300/50 backdrop-blur p-5 rounded-lg shadow-md flex flex-col lg:flex-row justify-around items-center gap-10">
       <button
         className="bg-pink text-white p-2 rounded-md cursor-pointer hover:shadow-md"
         onClick={logOut}
@@ -116,6 +118,7 @@ export default function UserPage() {
 
   return (
     <div>
+        <div className="mb-20 lg:mb-70">
       {/* Desktop */}
       <div className="hidden lg:flex w-2/4 gap-10 mx-auto mt-20 p-5">
         <div className="flex flex-col items-start gap-10 p-5">
@@ -139,7 +142,7 @@ export default function UserPage() {
 
         <div className="h-inherit border border-blue-950" />
 
-        <div className="w-3/5">
+        <div className="w-3/5 flex flex-col justify-center">
           {currentOption === "info" ? InfoBlock : OptionsBlock}
         </div>
       </div>
@@ -212,6 +215,7 @@ export default function UserPage() {
             Continuar
           </button>
         </div>
+      </div>
       </div>
     </div>
   );
