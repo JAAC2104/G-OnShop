@@ -125,7 +125,7 @@ export default function UserPage() {
     <div>
         <div className="mb-20 lg:mb-70">
       {/* Desktop */}
-      <div className="hidden lg:flex w-2/4 gap-10 mx-auto mt-20 p-5">
+      <div className="hidden lg:flex max-w-[900px] gap-10 mx-auto mt-20 p-5">
         <div className="flex flex-col items-start gap-10 p-5">
           <button
             className={`cursor-pointer hover:text-pink-600 font-semibold transition-all duration-200 ${
