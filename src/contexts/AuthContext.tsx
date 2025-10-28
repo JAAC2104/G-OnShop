@@ -1,10 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "../firebase/firebase";
 import { database } from "../firebase/firebase";
-import {createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onIdTokenChanged, type User, type UserCredential, deleteUser, reauthenticateWithRedirect, reauthenticateWithPopup, reauthenticateWithCredential} from "firebase/auth";
+import {createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onIdTokenChanged, type User, type UserCredential, deleteUser, reauthenticateWithRedirect, reauthenticateWithPopup, reauthenticateWithCredential, browserLocalPersistence, setPersistence, EmailAuthProvider} from "firebase/auth";
 import {doc, setDoc, serverTimestamp, getDoc, getDocs, deleteDoc, collection} from "firebase/firestore";
-import { browserLocalPersistence, setPersistence } from "firebase/auth";
-import { EmailAuthProvider } from "firebase/auth";
 
 type SignUpInput = {
   email: string;
@@ -93,6 +91,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   function logOut() {
     signOut(auth);
+  }
+
+  function shouldUseRedirect() {
+    const ua = navigator.userAgent || "";
+    const inApp = /(FBAN|FBAV|Instagram|Line|MicroMessenger|OkHttp|Twitter|TikTok|Pinterest)/i.test(ua);
+    const iOS = /iPhone|iPad|iPod/i.test(ua);
+    return inApp || iOS;
   }
 
   async function signInWithGoogle(): Promise<UserCredential | void> {

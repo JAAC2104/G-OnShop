@@ -5,11 +5,13 @@ import CartIcon from "../assets/cartIcon.svg?react";
 import { useState } from "react";
 import { useUserProfile } from "../hooks/useUserProfile";
 import { useAuth } from "../contexts/AuthContext";
+import { useCart } from "../contexts/CartContext";
 
 export default function Navbar(){
     const [isActive, setIsActive] = useState(false);
     const userInfo = useUserProfile()
     const { currentUser } = useAuth();
+    const { getTotalItems } = useCart();
 
     return(<>
         <div className="navBar sticky top-0 z-100">
@@ -20,7 +22,10 @@ export default function Navbar(){
                 <NavLink to='/' className="flex items-center"><header className="text-pink font-bold text-2xl absolute left-1/2 transform -translate-x-1/2">G·ON</header></NavLink>
                 <div className="flex gap-3">
                     <NavLink to='/usuario'>{currentUser ? <div className="flex justify-center items-center bg-pink h-8 w-8 rounded-full text-white font-semibold">{userInfo?.name[0]}</div> : <UserIcon className="h-8 w-8 text-pink"/>}</NavLink>
-                    <NavLink to='/micarrito'><CartIcon className="h-7 w-7 text-pink"/></NavLink>
+                    <div className="relative">
+                        <NavLink to='/micarrito'><CartIcon className="h-7 w-7 text-pink"/></NavLink>
+                        <div className={`${getTotalItems === 0 ? 'hidden' : 'flex'} absolute bg-yellow font-semibold text-blue h-5 w-5 bottom-5 rounded-full left-4 justify-center items-center`}>{getTotalItems}</div>
+                    </div>
                 </div>
             </div>
 
@@ -47,7 +52,10 @@ export default function Navbar(){
                 </nav>
                 <div className="flex gap-5">
                     <NavLink to='/usuario'>{currentUser ? <div className="flex justify-center items-center hover:scale-110 transition-all duration-200 bg-pink h-8 w-8 rounded-full text-white font-semibold">{userInfo?.name[0]}</div> : <UserIcon className="h-8 w-8 text-pink hover:scale-110 transition-all duration-200"/>}</NavLink>
-                    <NavLink to='/micarrito'><CartIcon className="h-7 w-7 hover:scale-110 transition-all duration-200 text-pink"/></NavLink>
+                    <div className="relative">
+                        <NavLink to='/micarrito'><CartIcon className="h-7 w-7 hover:scale-110 transition-all duration-200 text-pink"/></NavLink>
+                        <div className={`${getTotalItems === 0 ? 'hidden' : 'flex'} absolute bg-yellow text-blue h-5 w-5 bottom-5 rounded-full left-4 justify-center items-center font-semibold`}>{getTotalItems}</div>
+                    </div>
                 </div>
             </div>
 

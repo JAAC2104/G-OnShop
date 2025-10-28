@@ -4,11 +4,14 @@ import './style/style.css'
 import { RouterProvider } from 'react-router'
 import { router } from './routers/routes.tsx'
 import { AuthProvider } from './contexts/AuthContext.tsx'
+import CartProvider from './contexts/CartContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
-      <RouterProvider router={router}></RouterProvider>
+      <CartProvider>
+        <RouterProvider router={router}></RouterProvider>
+      </CartProvider>
     </AuthProvider>
   </StrictMode>,
 )

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useUserProfile } from "../hooks/useUserProfile";
+import Alert from "../components/Alert";
 
 export default function UserPage() {
   const { logOut, deleteAccount, updateUser } = useAuth();
@@ -9,6 +10,8 @@ export default function UserPage() {
   const [currentOption, setCurrentOption] = useState<"info" | "options">("info");
   const [isActive, setIsActive] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [open, setOpen] = useState(false);
+
 
   const [form, setForm] = useState({
     name: "",
@@ -25,6 +28,7 @@ export default function UserPage() {
   }, [userInfo]);
 
   async function handleSubmit() {
+    setOpen(true)
     await updateUser({
       name: form.name,
       phone: form.phone,
@@ -34,6 +38,7 @@ export default function UserPage() {
   }
 
   function handleDelete(){
+    setOpen(true);
     deleteAccount();
     logOut();
   }
@@ -123,6 +128,7 @@ export default function UserPage() {
 
   return (
     <div>
+      <Alert message='Cambios guardados exitosamente' open={open} onClose={() => setOpen(false)}/>
         <div className="mb-20 lg:mb-70">
       {/* Desktop */}
       <div className="hidden lg:flex max-w-[900px] gap-10 mx-auto mt-20 p-5">

@@ -1,8 +1,10 @@
 import { Link, NavLink, useLoaderData } from "react-router";
 import type { LoaderFunctionArgs } from "react-router";
 import { products } from "../components/MainShop";
-import { useState } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import Footer from "../components/Footer";
+import Alert from "../components/Alert";
+import { useCart, type CartItem } from "../contexts/CartContext";
 
 const PRODUCTS = products;
 
@@ -26,6 +28,9 @@ export async function productLoader({ params }: LoaderFunctionArgs) {
 export default function ProductPage() {
   const { product } = useLoaderData();
   const [selected, setSelected] = useState("amber");
+  const [open, setOpen] = useState(false);
+  const { addCartItem } = useCart();
+  const sizeRef = useRef<HTMLSelectElement>(null);
 
   const colors = [
     { name: "amber", class: "bg-amber-300" },
@@ -37,8 +42,28 @@ export default function ProductPage() {
     { name: "white", class: "bg-neutral-200" },
   ];
 
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const size = sizeRef.current?.value ?? "";
+    if (!size) return;
+
+    const productToAdd: CartItem = {
+      id: product.id,
+      name: product.name,
+      image: product.img,
+      quantity: 1,
+      price: product.price,
+      size,
+      color: selected,
+    };
+
+    addCartItem(productToAdd);
+    setOpen(true);
+  }
+
   return (<>
     <main className="container mt-5 flex flex-col mx-auto">
+        <Alert message='Producto agregado al carrito' open={open} onClose={() => setOpen(false)}/>
         <Link to="/" className="text-blue-950 hover:text-pink-600 tranform-all duration-300 font-semibold m-2">← Volver a la tienda</Link>
     
         <section className="product flex flex-col lg:flex-row lg:gap-20 items-center mt-8 justify-center m-5">
@@ -47,7 +72,7 @@ export default function ProductPage() {
             <div className="font-semibold text-blue m-3">
                 <h1 className="text-xl">{product.name}</h1>
                 <p className="text-pink text-2xl">₡{product.price.toLocaleString()}</p>
-                <form action="" className="flex flex-col my-7">
+                <form onSubmit={handleSubmit} className="flex flex-col my-7">
                   <div className="flex flex-col my-3">
                     <label htmlFor="color">Seleccione el color:</label>
                     <div className="flex gap-3 m-2">
@@ -57,7 +82,8 @@ export default function ProductPage() {
                   </div>
                   <div className="flex flex-col">
                     <label htmlFor="talla">Seleccione la talla:</label>
-                    <select name="talla" id="talla" className="border-2 border-pink rounded-md p-1 bg-neutral-100">
+                    <select name="talla" id="talla" className="border-2 border-pink rounded-md p-1 bg-neutral-100" ref={sizeRef}>
+                      <option value="" disabled>Selecciona talla</option>
                       <option value="xs">XS</option>
                       <option value="s">S</option>
                       <option value="m">M</option>
@@ -65,7 +91,7 @@ export default function ProductPage() {
                       <option value="xl">XL</option>
                     </select>
                   </div>
-                  <button className="bg-yellow p-2 rounded-md m-5 text-blue cursor-pointer" type="submit" onClick={() => alert("Producto agregado al carrito 🛒")}>Agregar al carrito</button>
+                  <button className="bg-yellow p-2 rounded-md m-5 text-blue cursor-pointer" type="submit" onClick={() => {}}>Agregar al carrito</button>
                 </form>
             </div>
         </section>
