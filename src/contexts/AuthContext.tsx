@@ -119,6 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function signInWithGoogleRedirect(): Promise<void> {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: "select_account" });
+    await setPersistence(auth, browserLocalPersistence);
     await signInWithRedirect(auth, provider);
   }
 

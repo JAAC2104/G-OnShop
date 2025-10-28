@@ -1,16 +1,14 @@
-import { type FormEvent, useEffect, useRef, useState } from "react"
-import { useAuth } from "../contexts/AuthContext"
+import { type FormEvent, useEffect, useRef, useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import { NavLink, useNavigate } from "react-router";
 import { GoogleButton } from "../components/GoogleBtn";
-import { getRedirectResult, GoogleAuthProvider, signInWithPopup, signInWithRedirect } from "firebase/auth";
-import { auth } from "../firebase/firebase";
 
 export default function LoginPage(){
     const emailRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
-    const { logIn, initializing, currentUser } = useAuth();
+    const { logIn, initializing, currentUser, signInWithGoogle } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -18,13 +16,6 @@ export default function LoginPage(){
             navigate("/usuario", { replace: true });
         }
     }, [initializing, currentUser, navigate]);
-
-    function shouldUseRedirect() {
-        const ua = navigator.userAgent || "";
-        const inApp = /(FBAN|FBAV|Instagram|Line|MicroMessenger|OkHttp|Twitter|TikTok|Pinterest)/i.test(ua);
-        const iOS = /iPhone|iPad|iPod/i.test(ua);
-        return inApp || iOS;
-    }
 
     async function handleSubmit(e: FormEvent<HTMLFormElement>){
         e.preventDefault();
@@ -41,16 +32,6 @@ export default function LoginPage(){
         }
 
         setLoading(false);
-
-        useEffect(() => {
-  console.log("[auth] initializing:", initializing, "user:", currentUser?.uid);
-}, [initializing, currentUser]);
-
-useEffect(() => {
-  getRedirectResult(auth)
-    .then((r) => console.log("[auth] redirect result user:", r?.user?.uid ?? null))
-    .catch((e) => console.error("[auth] redirect error:", e?.code, e?.message));
-}, []);
     }
     
     return (<>
@@ -65,10 +46,16 @@ useEffect(() => {
                 <button type="submit" disabled={loading} className={`mt-10 mx-auto w-[220px] h-10 rounded-md text-md ${loading ? "bg-neutral-400" : "bg-pink text-white cursor-pointer"}`}>Iniciar Sesión</button>
                 <div className="flex">
                     <GoogleButton onClick={async () => {
-                        const provider = new GoogleAuthProvider().setCustomParameters({ prompt: "select_account" });
-                        if (shouldUseRedirect()) await signInWithRedirect(auth, provider);
-                        else await signInWithPopup(auth, provider);
-                        }} label="Continuar con Google"/>
+                        try {
+                            setError("");
+                            setLoading(true);
+                            await signInWithGoogle();
+                        } catch (e) {
+                            setError("No se pudo iniciar sesión con Google");
+                        } finally {
+                            setLoading(false);
+                        }
+                    }} label="Continuar con Google"/>
                 </div>
             </form>
         </div>
