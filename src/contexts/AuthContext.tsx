@@ -93,13 +93,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signOut(auth);
   }
 
-  function shouldUseRedirect() {
-    const ua = navigator.userAgent || "";
-    const inApp = /(FBAN|FBAV|Instagram|Line|MicroMessenger|OkHttp|Twitter|TikTok|Pinterest)/i.test(ua);
-    const iOS = /iPhone|iPad|iPod/i.test(ua);
-    return inApp || iOS;
-  }
-
   async function signInWithGoogle(): Promise<UserCredential | void> {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: "select_account" });
