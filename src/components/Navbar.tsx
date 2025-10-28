@@ -24,7 +24,7 @@ export default function Navbar(){
                     <NavLink to='/usuario'>{currentUser ? <div className="flex justify-center items-center bg-pink h-8 w-8 rounded-full text-white font-semibold">{userInfo?.name[0]}</div> : <UserIcon className="h-8 w-8 text-pink"/>}</NavLink>
                     <div className="relative">
                         <NavLink to='/micarrito'><CartIcon className="h-7 w-7 text-pink"/></NavLink>
-                        <div className={`${getTotalItems === 0 ? 'hidden' : 'flex'} absolute bg-yellow font-semibold text-blue h-5 w-5 bottom-5 rounded-full left-4 justify-center items-center`}>{getTotalItems}</div>
+                        <div className={`${getTotalItems === 0 ? 'hidden' : 'flex'} absolute bg-yellow p-1 font-semibold text-blue h-5 w-5 bottom-5 rounded-full left-4 justify-center items-center`}>{getTotalItems}</div>
                     </div>
                 </div>
             </div>
@@ -54,7 +54,7 @@ export default function Navbar(){
                     <NavLink to='/usuario'>{currentUser ? <div className="flex justify-center items-center hover:scale-110 transition-all duration-200 bg-pink h-8 w-8 rounded-full text-white font-semibold">{userInfo?.name[0]}</div> : <UserIcon className="h-8 w-8 text-pink hover:scale-110 transition-all duration-200"/>}</NavLink>
                     <div className="relative">
                         <NavLink to='/micarrito'><CartIcon className="h-7 w-7 hover:scale-110 transition-all duration-200 text-pink"/></NavLink>
-                        <div className={`${getTotalItems === 0 ? 'hidden' : 'flex'} absolute bg-yellow text-blue h-5 w-5 bottom-5 rounded-full left-4 justify-center items-center font-semibold`}>{getTotalItems}</div>
+                        <div className={`${getTotalItems === 0 ? 'hidden' : 'flex'} absolute bg-yellow text-blue h-5 p-3 w-5 bottom-5 rounded-full left-4 justify-center items-center font-semibold`}>{getTotalItems}</div>
                     </div>
                 </div>
             </div>
