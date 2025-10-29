@@ -1,8 +1,8 @@
 import { useState } from "react"
 import { NavLink } from "react-router"
 
-type Gender = 'mujer' | 'hombre'
-type Section = 'superior' | 'inferior'
+type Gender = 'mujer' | 'unisex'
+type Section = 'topsReversibles' | 'tops' | 'camisas' | 'leggings' | 'shorts' | 'bolsos' | 'cropTops' | 'blusas'
 type Category = Gender | Section
 
 type Filter =
@@ -19,36 +19,42 @@ type Product = {
 }
 
 export const products: Product[] = [
-  { id: 1, name: 'Camiseta deportiva mujer', price: 13500, categories: ['mujer', 'superior'], img: 'https://picsum.photos/300/300?1' },
-  { id: 2, name: 'Camiseta deportiva hombre', price: 14200, categories: ['hombre', 'superior'], img: 'https://picsum.photos/300/300?2' },
-  { id: 3, name: 'Leggings de compresión mujer', price: 18500, categories: ['mujer', 'inferior'], img: 'https://picsum.photos/300/300?3' },
-  { id: 4, name: 'Shorts deportivos hombre', price: 11500, categories: ['hombre', 'inferior'], img: 'https://picsum.photos/300/300?4' },
-  { id: 5, name: 'Top deportivo mujer', price: 9800, categories: ['mujer', 'superior'], img: 'https://picsum.photos/300/300?5' },
-  { id: 6, name: 'Sudadera térmica hombre', price: 21000, categories: ['hombre', 'superior'], img: 'https://picsum.photos/300/300?6' },
-  { id: 7, name: 'Sudadera térmica mujer', price: 19900, categories: ['mujer', 'superior'], img: 'https://picsum.photos/300/300?7' },
-  { id: 8, name: 'Pantalones deportivos mujer', price: 16700, categories: ['mujer', 'inferior'], img: 'https://picsum.photos/300/300?8' },
-  { id: 9, name: 'Joggers deportivos hombre', price: 17500, categories: ['hombre', 'inferior'], img: 'https://picsum.photos/300/300?9' },
-  { id: 10, name: 'Camiseta sin mangas hombre', price: 9500, categories: ['hombre', 'superior'], img: 'https://picsum.photos/300/300?10' },
-  { id: 11, name: 'Camiseta sin mangas mujer', price: 8900, categories: ['mujer', 'superior'], img: 'https://picsum.photos/300/300?11' },
-  { id: 12, name: 'Ropa térmica unisex', price: 23000, categories: ['mujer', 'hombre', 'superior'], img: 'https://picsum.photos/300/300?12' },
-  { id: 13, name: 'Pantalón de yoga mujer', price: 16200, categories: ['mujer', 'inferior'], img: 'https://picsum.photos/300/300?13' },
-  { id: 14, name: 'Camiseta running hombre', price: 13200, categories: ['hombre', 'superior'], img: 'https://picsum.photos/300/300?14' },
-  { id: 15, name: 'Camiseta running mujer', price: 12900, categories: ['mujer', 'superior'], img: 'https://picsum.photos/300/300?15' },
-  { id: 16, name: 'Shorts de entrenamiento mujer', price: 11500, categories: ['mujer', 'inferior'], img: 'https://picsum.photos/300/300?16' },
-  { id: 17, name: 'Shorts de entrenamiento hombre', price: 12500, categories: ['hombre', 'inferior'], img: 'https://picsum.photos/300/300?17' },
-  { id: 18, name: 'Pantalón térmico hombre', price: 19500, categories: ['hombre', 'inferior'], img: 'https://picsum.photos/300/300?18' },
-  { id: 19, name: 'Pantalón térmico mujer', price: 18800, categories: ['mujer', 'inferior'], img: 'https://picsum.photos/300/300?19' },
-  { id: 20, name: 'Tank top compresión hombre', price: 11000, categories: ['hombre', 'superior'], img: 'https://picsum.photos/300/300?20' },
-  { id: 21, name: 'Tank top compresión mujer', price: 10800, categories: ['mujer', 'superior'], img: 'https://picsum.photos/300/300?21' },
-  { id: 22, name: 'Conjunto deportivo mujer', price: 25900, categories: ['mujer', 'superior', 'inferior'], img: 'https://picsum.photos/300/300?22' },
-  { id: 23, name: 'Conjunto deportivo hombre', price: 27200, categories: ['hombre', 'superior', 'inferior'], img: 'https://picsum.photos/300/300?23' },
-  { id: 24, name: 'Camisa de compresión hombre', price: 17800, categories: ['hombre', 'superior'], img: 'https://picsum.photos/300/300?24' },
-  { id: 25, name: 'Camisa de compresión mujer', price: 17200, categories: ['mujer', 'superior'], img: 'https://picsum.photos/300/300?25' },
-  { id: 26, name: 'Mallas térmicas mujer', price: 18700, categories: ['mujer', 'inferior'], img: 'https://picsum.photos/300/300?26' },
-  { id: 27, name: 'Mallas térmicas hombre', price: 19200, categories: ['hombre', 'inferior'], img: 'https://picsum.photos/300/300?27' },
-  { id: 28, name: 'Camiseta liviana unisex', price: 9700, categories: ['mujer', 'hombre', 'superior'], img: 'https://picsum.photos/300/300?28' },
-  { id: 29, name: 'Shorts livianos unisex', price: 10200, categories: ['mujer', 'hombre', 'inferior'], img: 'https://picsum.photos/300/300?29' },
-  { id: 30, name: 'Ropa deportiva funcional mujer', price: 22500, categories: ['mujer', 'superior'], img: 'https://picsum.photos/300/300?30' }
+  { id: 1, name: 'Top Reversible Basic', price: 10500, categories: ['mujer', 'topsReversibles'], img: 'https://picsum.photos/300/300?1' },
+  { id: 2, name: 'Top Reversible Complete', price: 11500, categories: ['mujer', 'topsReversibles'], img: 'https://picsum.photos/300/300?2' },
+  { id: 3, name: 'Top Reversible Rectangle', price: 12500, categories: ['mujer', 'topsReversibles'], img: 'https://picsum.photos/300/300?3' },
+  { id: 4, name: 'Top Reversible Mariposa', price: 12500, categories: ['mujer', 'topsReversibles'], img: 'https://picsum.photos/300/300?4' },
+  { id: 5, name: 'Twist-Top Reversible', price: 12500, categories: ['mujer', 'topsReversibles'], img: 'https://picsum.photos/300/300?5' },
+  { id: 6, name: 'Top Uve', price: 11500, categories: ['mujer', 'tops'], img: 'https://picsum.photos/300/300?6' },
+  { id: 7, name: 'Top Curve', price: 12500, categories: ['mujer', 'tops'], img: 'https://picsum.photos/300/300?7' },
+  { id: 8, name: 'Top Triangle', price: 12.900, categories: ['mujer', 'tops'], img: 'https://picsum.photos/300/300?8' },
+  { id: 9, name: 'Top Asimétrico', price: 12500, categories: ['mujer', 'tops'], img: 'https://picsum.photos/300/300?9' },
+  { id: 10, name: 'Top Freedom', price: 10900, categories: ['mujer', 'tops'], img: 'https://picsum.photos/300/300?10' },
+  { id: 11, name: 'Top Aura Fit', price: 12900, categories: ['mujer', 'tops'], img: 'https://picsum.photos/300/300?11' },
+  { id: 12, name: 'Top Strapless', price: 10500, categories: ['mujer', 'tops'], img: 'https://picsum.photos/300/300?12' },
+  { id: 13, name: 'Top PowerFlex', price: 13900, categories: ['mujer', 'tops'], img: 'https://picsum.photos/300/300?13' },
+  { id: 14, name: 'Muscle Tank', price: 10000, categories: ['unisex', 'camisas'], img: 'https://picsum.photos/300/300?14' },
+  { id: 15, name: 'Tee Basic', price: 11500, categories: ['unisex', 'camisas'], img: 'https://picsum.photos/300/300?15' },
+  { id: 16, name: 'Leggings Básico', price: 15500, categories: ['leggings', 'mujer'], img: 'https://picsum.photos/300/300?16' },
+  { id: 17, name: 'Leggings Brisa', price: 17900, categories: ['leggings', 'mujer'], img: 'https://picsum.photos/300/300?17' },
+  { id: 18, name: 'Leggings Raya', price: 17900, categories: ['leggings', 'mujer'], img: 'https://picsum.photos/300/300?18' },
+  { id: 19, name: 'Baby Short', price: 10000, categories: ['shorts', 'mujer'], img: 'https://picsum.photos/300/300?19' },
+  { id: 20, name: 'Biker Short', price: 12000, categories: ['shorts', 'mujer'], img: 'https://picsum.photos/300/300?20' },
+  { id: 21, name: 'Baby Bag Tela Normal', price: 7500, categories: ['bolsos', 'mujer'], img: 'https://picsum.photos/300/300?21' },
+  { id: 22, name: 'Baby Bag Impermeable', price: 9000, categories: ['bolsos', 'mujer'], img: 'https://picsum.photos/300/300?22' },
+  { id: 23, name: 'Crop Top Muscle Tank', price: 9000, categories: ['cropTops', 'mujer'], img: 'https://picsum.photos/300/300?23' },
+  { id: 24, name: 'Crop Top Yoga Tank', price: 9900, categories: ['cropTops', 'mujer'], img: 'https://picsum.photos/300/300?24' },
+  { id: 25, name: 'Crop Top Tee Mariposa', price: 9000, categories: ['cropTops', 'mujer'], img: 'https://picsum.photos/300/300?25' },
+  { id: 26, name: 'Crop Top Tee Oversized', price: 9000, categories: ['cropTops', 'mujer'], img: 'https://picsum.photos/300/300?26' },
+  { id: 27, name: 'Sport Crop Top Manga Corta', price: 9500, categories: ['cropTops', 'mujer'], img: 'https://picsum.photos/300/300?27' },
+  { id: 28, name: 'Sport Crop Top Manga Larga', price: 10500, categories: ['cropTops', 'mujer'], img: 'https://picsum.photos/300/300?28' },
+  { id: 29, name: 'Súper Crop Top Manga Corta', price: 5900, categories: ['cropTops', 'mujer'], img: 'https://picsum.photos/300/300?29' },
+  { id: 30, name: 'Súpero Crop Top Manga Larga', price: 6500, categories: ['cropTops', 'mujer'], img: 'https://picsum.photos/300/300?30' },
+  { id: 31, name: 'Blusa Muscle Tank', price: 11000, categories: ['blusas', 'mujer'], img: 'https://picsum.photos/300/300?31' },
+  { id: 32, name: 'Blusa Yoga Tank', price: 11900, categories: ['blusas', 'mujer'], img: 'https://picsum.photos/300/300?32' },
+  { id: 33, name: 'Blusa Tee Mariposa', price: 10500, categories: ['blusas', 'mujer'], img: 'https://picsum.photos/300/300?33' },
+  { id: 34, name: 'Blusa Tee Oversized', price: 10000, categories: ['blusas', 'mujer'], img: 'https://picsum.photos/300/300?34' },
+  { id: 35, name: 'Sport Crop Top Largo Manga Corta', price: 9900, categories: ['cropTops', 'mujer'], img: 'https://picsum.photos/300/300?35' },
+  { id: 36, name: 'Sport Crop Top Largo Manga Larga', price: 10900, categories: ['cropTops', 'mujer'], img: 'https://picsum.photos/300/300?36' }
 ];
 
 export default function MainShop(){
@@ -69,18 +75,19 @@ export default function MainShop(){
       </div>
 
       {/* Filters for Desktop */}
-      <div className="hidden lg:flex gap-5 mx-auto my-15 max-w-[900px] items-center bg-neutral-300/50 backdrop-blur p-3 rounded-full shadow-md">
+      <div className="hidden lg:flex gap-5 mx-auto my-15 max-w-[1050px] items-center bg-neutral-300/50 backdrop-blur p-3 rounded-full shadow-md">
         <div className="flex gap-2 mx-auto text-blue">
           <h2 className="text-lg font-semibold">Filtros:</h2>
           <button onClick={() => setFilter('todo')} className={`w-18 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "todo" ? "bg-pink text-white transition-all duration-300" : ""}`}>Todo</button>
-          <span>|</span>
-          <button onClick={() => setFilter('mujer')} className={`w-18 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Mujer</button>
-          <button onClick={() => setFilter('inferior mujer')} className={`w-30 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "inferior mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Inferior</button>
-          <button onClick={() => setFilter('superior mujer')} className={`w-30 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "superior mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Superior</button>
-          <span>|</span>
-          <button onClick={() => setFilter('hombre')} className={`w-18 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "hombre" ? "bg-pink text-white transition-all duration-300" : ""}`}>Hombre</button>
-          <button onClick={() => setFilter('inferior hombre')} className={`w-30 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "inferior hombre" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Inferior</button>
-          <button onClick={() => setFilter('superior hombre')} className={`w-30 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "superior hombre" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Superior</button>
+          <button onClick={() => setFilter('unisex')} className={`w-18 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "unisex" ? "bg-pink text-white transition-all duration-300" : ""}`}>Unisex</button>
+          <button onClick={() => setFilter('tops mujer')} className={`w-15 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "tops mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Tops</button>
+          <button onClick={() => setFilter('topsReversibles mujer')} className={`w-35 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "topsReversibles mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Tops Reversibles</button>
+          <button onClick={() => setFilter('camisas unisex')} className={`w-20 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "camisas unisex" ? "bg-pink text-white transition-all duration-300" : ""}`}>Camisas</button>
+          <button onClick={() => setFilter('leggings mujer')} className={`w-23 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "leggings mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Leggings</button>
+          <button onClick={() => setFilter('shorts mujer')} className={`w-20 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "shorts mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Shorts</button>
+          <button onClick={() => setFilter('bolsos mujer')} className={`w-18 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "bolsos mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Bolsos</button>
+          <button onClick={() => setFilter('cropTops mujer')} className={`w-25 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "cropTops mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Crop Tops</button>
+          <button onClick={() => setFilter('blusas mujer')} className={`w-18 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "blusas mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Blusas</button>
         </div>
       </div>
 
@@ -92,20 +99,17 @@ export default function MainShop(){
       {isActive && (<div className="fixed bg-black/20 inset-0 z-[900] lg:hidden" onClick={() => setIsActive(false)}></div>)}
 
       <div className={`absolute z-[1000] shadow-md fixed w-full bottom-0 transition-transform duration-500 ease-in-out ${isActive ? "translate-y-0 opacity-100 pointer-events-auto" : "translate-y-full opacity-0 pointer-events-none"}`}>
-        <div className="flex flex-col gap-3 mx-auto bg-neutral-300/50 backdrop-blur p-5 shadow-xl p-10 h-[60vh] rounded-t-3xl text-blue">
-          <button onClick={() => setFilter('todo')} className={`w-18 h-8 bg-neutral-200 rounded-lg cursor-pointer ${filter === "todo" ? "bg-pink text-white transition-all duration-300" : ""}`}>Todo</button>
-          <hr className="text-blue my-1"/>
-          <button onClick={() => setFilter('mujer')} className={`w-18 h-8 bg-neutral-200 rounded-lg cursor-pointer ${filter === "mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Mujer</button>
-          <div className="flex gap-3">
-            <button onClick={() => setFilter('inferior mujer')} className={`w-30 h-8 bg-neutral-200 rounded-lg cursor-pointer ${filter === "inferior mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Inferior</button>
-            <button onClick={() => setFilter('superior mujer')} className={`w-30 h-8 bg-neutral-200 rounded-lg cursor-pointer ${filter === "superior mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Superior</button>
-          </div>
-          <hr className="text-blue my-1"/>
-          <button onClick={() => setFilter('hombre')} className={`w-18 h-8 bg-neutral-200 rounded-lg cursor-pointer ${filter === "hombre" ? "bg-pink text-white transition-all duration-300" : ""}`}>Hombre</button>
-          <div className="flex gap-3">
-            <button onClick={() => setFilter('inferior hombre')} className={`w-30 h-8 bg-neutral-200 rounded-lg cursor-pointer ${filter === "inferior hombre" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Inferior</button>
-            <button onClick={() => setFilter('superior hombre')} className={`w-30 h-8 bg-neutral-200 rounded-lg cursor-pointer ${filter === "superior hombre" ? "bg-pink text-white transition-all duration-300" : ""}`}>Parte Superior</button>
-          </div>
+        <div className="flex flex-wrap font-semibold gap-3 mx-auto bg-neutral-300/50 backdrop-blur p-5 shadow-xl p-10 h-[60vh] rounded-t-3xl text-blue">
+          <button onClick={() => setFilter('todo')} className={`w-18 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "todo" ? "bg-pink text-white transition-all duration-300" : ""}`}>Todo</button>
+          <button onClick={() => setFilter('unisex')} className={`w-18 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "unisex" ? "bg-pink text-white transition-all duration-300" : ""}`}>Unisex</button>
+          <button onClick={() => setFilter('tops mujer')} className={`w-15 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "tops mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Tops</button>
+          <button onClick={() => setFilter('topsReversibles mujer')} className={`w-35 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "topsReversibles mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Tops Reversibles</button>
+          <button onClick={() => setFilter('camisas mujer')} className={`w-20 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "camisas mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Camisas</button>
+          <button onClick={() => setFilter('leggings mujer')} className={`w-23 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "leggings mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Leggings</button>
+          <button onClick={() => setFilter('shorts mujer')} className={`w-20 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "shorts mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Shorts</button>
+          <button onClick={() => setFilter('bolsos mujer')} className={`w-18 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "bolsos mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Bolsos</button>
+          <button onClick={() => setFilter('cropTops mujer')} className={`w-25 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "cropTops mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Crop Tops</button>
+          <button onClick={() => setFilter('blusas mujer')} className={`w-18 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "blusas mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Blusas</button>
         </div>
       </div>
 

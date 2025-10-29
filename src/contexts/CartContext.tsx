@@ -4,13 +4,15 @@ import { doc, getDoc, setDoc, deleteDoc, onSnapshot, collection, increment, getD
 import { useAuth } from "./AuthContext";
 
 export type CartItem = {
-  id: number;
+  id: number; // product base id
   name: string;
   image: string;
   quantity: number;
   price: number;
   size: string;
   color: string;
+  // internal key for variant line (id+size+color). Present when read from Firestore.
+  lineKey?: string;
 };
 
 type ShoppingCartValue = {
@@ -18,10 +20,10 @@ type ShoppingCartValue = {
   totalPrice: number;
   getTotalItems: number;
   addCartItem: (newItem: CartItem) => Promise<void>;
-  deleteCartItem: (itemId: number) => Promise<void>;
+  deleteCartItem: (lineKey: string, fallback?: { id: number; size: string; color: string }) => Promise<void>;
   emptyShoppingCart: () => Promise<void>;
   incrementItem: (item: CartItem) => Promise<void>;
-  decrementItem: (itemId: number, currentQty: number) => Promise<void>;
+  decrementItem: (lineKey: string, currentQty: number, fallback?: { id: number; size: string; color: string }) => Promise<void>;
 };
 
 const CART_LS_KEY = "cart";
@@ -49,12 +51,19 @@ const writeLocalCart = (items: CartItem[]) => {
   localStorage.setItem(CART_LS_KEY, JSON.stringify(items));
 };
 
-const mergeByIdSumQty = (a: CartItem[], b: CartItem[]) => {
-  const map = new Map<number, CartItem>();
+const variantKey = (it: Pick<CartItem, "id" | "size" | "color">): string =>
+  `${it.id}__${(it.size || "").trim().toLowerCase()}__${(it.color || "").trim().toLowerCase()}`;
+
+const isSameVariant = (a: CartItem, b: CartItem) =>
+  a.id === b.id && a.size === b.size && a.color === b.color;
+
+const mergeByVariantSumQty = (a: CartItem[], b: CartItem[]) => {
+  const map = new Map<string, CartItem>();
   const add = (it: CartItem) => {
-    const prev = map.get(it.id);
-    if (!prev) map.set(it.id, { ...it });
-    else map.set(it.id, { ...prev, quantity: prev.quantity + it.quantity });
+    const key = variantKey(it);
+    const prev = map.get(key);
+    if (!prev) map.set(key, { ...it });
+    else map.set(key, { ...prev, quantity: prev.quantity + it.quantity });
   };
   a.forEach(add);
   b.forEach(add);
@@ -88,22 +97,13 @@ export default function CartProvider({ children }: { children: React.ReactNode }
         const local = readLocalCart();
         if (local.length > 0) {
           const snap = await getDocs(colRef);
-          const remote = snap.docs.map(d => d.data() as CartItem);
-          const merged = mergeByIdSumQty(remote, local);
+          const remote = snap.docs.map(d => ({ ...(d.data() as CartItem), lineKey: d.id }));
+          const merged = mergeByVariantSumQty(remote, local);
 
           for (const it of merged) {
-            const ref = doc(database, "users", currentUser.uid, "cart", String(it.id));
-            await setDoc(ref, it, { merge: true });
-          }
-
-          for (const it of local) {
-            const ref = doc(database, "users", currentUser.uid, "cart", String(it.id));
-            const existing = await getDoc(ref);
-            if (existing.exists()) {
-              await setDoc(ref, { quantity: increment(it.quantity) }, { merge: true });
-            } else {
-              await setDoc(ref, it);
-            }
+            const key = it.lineKey ?? variantKey(it);
+            const ref = doc(database, "users", currentUser.uid, "cart", key);
+            await setDoc(ref, { ...it, lineKey: key }, { merge: true });
           }
 
           writeLocalCart([]);
@@ -111,7 +111,7 @@ export default function CartProvider({ children }: { children: React.ReactNode }
       }
 
       unsubRef.current = onSnapshot(colRef, (snap) => {
-        const items = snap.docs.map(d => d.data() as CartItem);
+        const items = snap.docs.map(d => ({ ...(d.data() as CartItem), lineKey: d.id }));
         setCartItems(items);
       });
     })();
@@ -143,7 +143,7 @@ export default function CartProvider({ children }: { children: React.ReactNode }
   const addCartItem = async (newItem: CartItem) => {
     if (!currentUser) {
       setCartItems((prev) => {
-        const idx = prev.findIndex(p => p.id === newItem.id);
+        const idx = prev.findIndex(p => isSameVariant(p, newItem));
         if (idx === -1) return [...prev, newItem];
         const copy = [...prev];
         copy[idx] = { ...copy[idx], quantity: copy[idx].quantity + newItem.quantity };
@@ -152,21 +152,24 @@ export default function CartProvider({ children }: { children: React.ReactNode }
       return;
     }
 
-    const ref = doc(database, "users", currentUser.uid, "cart", String(newItem.id));
+    const key = variantKey(newItem);
+    const ref = doc(database, "users", currentUser.uid, "cart", key);
     const snap = await getDoc(ref);
     if (snap.exists()) {
       await setDoc(ref, { quantity: increment(newItem.quantity) }, { merge: true });
     } else {
-      await setDoc(ref, newItem);
+      await setDoc(ref, { ...newItem, lineKey: key });
     }
   };
 
-  const deleteCartItem = async (itemId: number) => {
+  const deleteCartItem = async (lineKey: string, fallback?: { id: number; size: string; color: string }) => {
     if (!currentUser) {
-      setCartItems(prev => prev.filter(p => p.id !== itemId));
+      setCartItems(prev => prev.filter(p => (p.lineKey ?? variantKey(p)) !== (lineKey || (fallback ? variantKey(fallback as any) : ""))));
       return;
     }
-    await deleteDoc(doc(database, "users", currentUser.uid, "cart", String(itemId)));
+    const key = lineKey || (fallback ? variantKey(fallback as any) : "");
+    if (!key) return;
+    await deleteDoc(doc(database, "users", currentUser.uid, "cart", key));
   };
 
   const emptyShoppingCart = async () => {
@@ -182,25 +185,29 @@ export default function CartProvider({ children }: { children: React.ReactNode }
   const incrementItem = async (item: CartItem) => {
     if (!currentUser) {
       setCartItems(prev =>
-        prev.map(p => (p.id === item.id ? { ...p, quantity: p.quantity + 1 } : p))
+        prev.map(p => ((p.lineKey ?? variantKey(p)) === (item.lineKey ?? variantKey(item)) ? { ...p, quantity: p.quantity + 1 } : p))
       );
       return;
     }
-    const ref = doc(database, "users", currentUser.uid, "cart", String(item.id));
+    const key = item.lineKey ?? variantKey(item);
+    const ref = doc(database, "users", currentUser.uid, "cart", key);
     await setDoc(ref, { quantity: increment(1) }, { merge: true });
   };
 
-  const decrementItem = async (itemId: number, currentQty: number) => {
+  const decrementItem = async (lineKey: string, currentQty: number, fallback?: { id: number; size: string; color: string }) => {
     if (!currentUser) {
       setCartItems(prev => {
-        const item = prev.find(p => p.id === itemId);
+        const targetKey = lineKey || (fallback ? variantKey(fallback as any) : "");
+        const item = prev.find(p => (p.lineKey ?? variantKey(p)) === targetKey);
         if (!item) return prev;
-        if (item.quantity <= 1) return prev.filter(p => p.id !== itemId);
-        return prev.map(p => (p.id === itemId ? { ...p, quantity: p.quantity - 1 } : p));
+        if (item.quantity <= 1) return prev.filter(p => (p.lineKey ?? variantKey(p)) !== targetKey);
+        return prev.map(p => ((p.lineKey ?? variantKey(p)) === targetKey ? { ...p, quantity: p.quantity - 1 } : p));
       });
       return;
     }
-    const ref = doc(database, "users", currentUser.uid, "cart", String(itemId));
+    const key = lineKey || (fallback ? variantKey(fallback as any) : "");
+    if (!key) return;
+    const ref = doc(database, "users", currentUser.uid, "cart", key);
     if (currentQty <= 1) {
       await deleteDoc(ref);
     } else {

@@ -7,7 +7,7 @@ export default function MyCartPage(){
     return (<>
         <div>Carrito Pagina</div>
         {cartItems.map(item => (
-            <div>
+            <div key={item.id}>
                 <div>{item.name}</div>
                 <div>{item.price}</div>
                 <div>{item.quantity}</div>
