@@ -1,43 +1,18 @@
-﻿import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
+﻿import { type FormEvent, useEffect, useRef, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { NavLink, useNavigate } from "react-router-dom";
 import { GoogleButton } from "../components/GoogleBtn";
 
-function isIOS() {
-  const ua = (navigator.userAgent || "").toLowerCase();
-  return /iphone|ipad|ipod/.test(ua);
-}
-function isWebView() {
-  const ua = (navigator.userAgent || "").toLowerCase();
-  return /(fbav|fban|instagram|line\/|twitter|tiktok|snapchat|; wv;|webview|duckduckgo|gsa)/.test(ua);
-}
-function isStandalonePWA() {
-  // iOS: window.navigator.standalone; otros: display-mode
-  return (navigator as any).standalone === true ||
-         window.matchMedia?.("(display-mode: standalone)").matches === true;
-}
-
 export default function LoginPage() {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
-
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const { logIn, initializing, currentUser, signInWithGoogle, signInWithGoogleRedirect } = useAuth();
+  const { logIn, initializing, currentUser, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
 
-  // Detecta entornos “hostiles” para popup (iOS, PWA, webviews)
-  const mustUseRedirect = useMemo(
-    () => isIOS() || isStandalonePWA() || isWebView(),
-    []
-  );
-
-  // 🔒 No hagas nada hasta que Auth termine de iniciar
   useEffect(() => {
-    if (!initializing && currentUser) {
-      navigate("/usuario", { replace: true });
-    }
+    if (!initializing && currentUser) navigate("/usuario", { replace: true });
   }, [initializing, currentUser, navigate]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -56,14 +31,7 @@ export default function LoginPage() {
     }
   }
 
-  // Mientras Auth inicializa en Safari/iOS, evita parpadeos/loops de navegación
-  if (initializing) {
-    return (
-      <div className="mt-20 mx-auto w-[300px] lg:w-lg p-5 text-center text-blue">
-        Cargando…
-      </div>
-    );
-  }
+  if (initializing) return <div className="mt-20 text-center text-blue">Cargando…</div>;
 
   return (
     <>
@@ -99,14 +67,7 @@ export default function LoginPage() {
               try {
                 setError("");
                 setLoading(true);
-                // 🍎 iPhone / PWA / WebView → usa redirect sí o sí
-                if (mustUseRedirect && typeof signInWithGoogleRedirect === "function") {
-                  await signInWithGoogleRedirect();
-                } else {
-                  await signInWithGoogle();
-                }
-                // No navegamos aquí: el AuthProvider hará navigate cuando
-                // currentUser exista (useEffect de arriba).
+                await signInWithGoogle();
               } catch {
                 setError("No se pudo iniciar sesión con Google");
               } finally {
@@ -116,13 +77,6 @@ export default function LoginPage() {
             label="Continuar con Google"
           />
         </div>
-
-        {isWebView() && (
-          <div className="mt-3 text-center text-sm text-blue bg-yellow-100 border border-yellow-300 rounded-md p-2">
-            Estás usando un navegador dentro de una app (Instagram/Facebook/TikTok).
-            Para iniciar sesión con Google, abre esta página en Safari o Chrome.
-          </div>
-        )}
       </div>
 
       <div className="m-2 mx-auto w-[300px] lg:w-lg p-5 flex justify-center gap-3">
