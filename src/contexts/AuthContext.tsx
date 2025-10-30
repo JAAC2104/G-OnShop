@@ -1,43 +1,34 @@
-﻿import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { auth } from "../firebase/firebase";
-import { database } from "../firebase/firebase";
+﻿import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { auth, database } from "../firebase/firebase";
 import {
+  // login/registro básicos
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
+  // Google
   GoogleAuthProvider,
   signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
+  // sesión
   onIdTokenChanged,
-  type User,
-  type UserCredential,
+  // tipos
+  type User, type UserCredential,
+  // eliminar cuenta + reauth
   deleteUser,
   reauthenticateWithRedirect,
   reauthenticateWithPopup,
   reauthenticateWithCredential,
-  browserLocalPersistence,
-  browserSessionPersistence,
-  inMemoryPersistence,
-  setPersistence,
   EmailAuthProvider,
 } from "firebase/auth";
 import { doc, setDoc, serverTimestamp, getDoc, getDocs, deleteDoc, collection } from "firebase/firestore";
 
 type SignUpInput = {
-  email: string;
-  password: string;
-  name: string;
-  phone: string;
-  address: string;
+  email: string; password: string; name: string; phone: string; address: string;
 };
-
 type UpdateUserInput = {
-  name?: string;
-  email?: string;
-  phone?: string;
-  address?: string;
+  name?: string; email?: string; phone?: string; address?: string;
 };
 
 type AuthContextValue = {
@@ -45,7 +36,7 @@ type AuthContextValue = {
   initializing: boolean;
   signUp: (data: SignUpInput) => Promise<UserCredential>;
   logIn: (email: string, password: string) => Promise<UserCredential>;
-  logOut: () => void;
+  logOut: () => Promise<void>;
   signInWithGoogle: () => Promise<UserCredential | void>;
   signInWithGoogleRedirect?: () => Promise<void>;
   deleteAccount: (opts?: { password?: string }) => Promise<void>;
@@ -53,84 +44,76 @@ type AuthContextValue = {
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
-
 export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within <AuthProvider>");
   return ctx;
 }
 
+const PENDING_DELETE_KEY = "__PENDING_DELETE_ACCOUNT__";
+const RETURN_TO_KEY = "__AUTH_RETURN_TO__";
+
+function isIOSOrIPadOS(): boolean {
+  const ua = navigator.userAgent || "";
+  const isIOSDevice = /iPad|iPhone|iPod/.test(ua);
+  const isIPadOS13Plus = (navigator as any).platform === "MacIntel" && (navigator as any).maxTouchPoints > 1;
+  return isIOSDevice || isIPadOS13Plus;
+}
+function isStandalonePWA(): boolean {
+  const iosStandalone = (navigator as any).standalone === true;
+  const displayModeStandalone = window.matchMedia?.("(display-mode: standalone)").matches ?? false;
+  return iosStandalone || displayModeStandalone;
+}
+function isEmbeddedBrowser(): boolean {
+  const ua = (navigator.userAgent || "").toLowerCase();
+  return /(fbav|fban|instagram|line\/|twitter|tiktok|snapchat|; wv;|webview|duckduckgo|gsa|miuibrowser|heytapbrowser|oppobrowser|opxbrowser)/.test(ua);
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [initializing, setInitializing] = useState(true);
-
-  const PENDING_DELETE_KEY = "__PENDING_DELETE_ACCOUNT__";
-  const RETURN_TO_KEY = "__AUTH_RETURN_TO__";
-
-  function isIOSOrIPadOS(): boolean {
-    try {
-      const ua = navigator.userAgent || "";
-      const isIOSDevice = /iPad|iPhone|iPod/.test(ua);
-      const isIPadOS13Plus = navigator.platform === "MacIntel" && (navigator as any).maxTouchPoints > 1;
-      return isIOSDevice || isIPadOS13Plus;
-    } catch {
-      return false;
-    }
-  }
-
-  function isStandalonePWA(): boolean {
-    try {
-      const iosStandalone = (navigator as any).standalone === true;
-      const displayModeStandalone = window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
-      return !!(iosStandalone || displayModeStandalone);
-    } catch {
-      return false;
-    }
-  }
-
-  function isEmbeddedBrowser(): boolean {
-    try {
-      const ua = (navigator.userAgent || "").toLowerCase();
-      const patterns = [
-        "fbav",
-        "fban",
-        "instagram",
-        "line/",
-        "twitter",
-        "tiktok",
-        "snapchat",
-        "; wv;",
-        "webview",
-        "duckduckgo",
-        "gsa",
-        "miuibrowser",
-        "heytapbrowser",
-        "oppobrowser",
-        "opxbrowser",
-      ];
-      return patterns.some((p) => ua.includes(p));
-    } catch {
-      return false;
-    }
-  }
+  const hasProcessedPendingDelete = useRef(false);
 
   useEffect(() => {
-  const unsub = onIdTokenChanged(auth, (user) => {
-    setCurrentUser(user);
-    setInitializing(false);
-  });
+    (async () => {
+      // 🔸 En SDK modernos existe authStateReady; si no, simplemente sigue.
+      await (auth as any).authStateReady?.();
 
-  getRedirectResult(auth)
-    .then(res => { if (res?.user) ensureUserDoc(res.user); })
-    .catch(console.error);
+      // 1) Procesa el resultado del redirect (si lo hay)
+      try {
+        const res = await getRedirectResult(auth);
+        if (res?.user) await ensureUserDoc(res.user);
+      } catch (e) {
+        console.error("[auth] getRedirectResult error:", e);
+      }
 
-  return unsub;
-}, []);
+      // 2) Mantén la sesión sincronizada
+      const unsub = onIdTokenChanged(auth, async (user) => {
+        setCurrentUser(user);
+        setInitializing(false);
 
+        // Si veníamos de reauth para eliminar cuenta vía redirect
+        if (!user && hasProcessedPendingDelete.current) {
+          hasProcessedPendingDelete.current = false;
+        }
+        if (user && !hasProcessedPendingDelete.current && localStorage.getItem(PENDING_DELETE_KEY)) {
+          hasProcessedPendingDelete.current = true;
+          try {
+            await performFinalAccountDeletion(user);
+          } finally {
+            localStorage.removeItem(PENDING_DELETE_KEY);
+          }
+        }
+      });
+
+      return () => unsub();
+    })();
+  }, []);
+
+  // ---------- Helpers ----------
   async function ensureUserDoc(u: User, extra?: Partial<{ phone: string; address: string }>) {
     const ref = doc(database, "users", u.uid);
     const snap = await getDoc(ref);
-
     const payload: Record<string, unknown> = {
       uid: u.uid,
       email: u.email ?? "",
@@ -142,88 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ...(snap.exists() ? {} : { createdAt: serverTimestamp() }),
       updatedAt: serverTimestamp(),
     };
-
     await setDoc(ref, payload, { merge: true });
-  }
-
-  async function setBestPersistence() {
-    try {
-      await setPersistence(auth, browserLocalPersistence);
-      return;
-    } catch {}
-    try {
-      await setPersistence(auth, browserSessionPersistence);
-      return;
-    } catch {}
-    await setPersistence(auth, inMemoryPersistence);
-  }
-
-  async function signUp({ email, password, name, phone, address }: SignUpInput) {
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
-    const user = cred.user;
-    await updateProfile(user, { displayName: name });
-    await ensureUserDoc(user, { phone, address });
-    return cred;
-  }
-
-  function logIn(email: string, password: string) {
-    return signInWithEmailAndPassword(auth, email, password);
-  }
-
-  function logOut() {
-    signOut(auth).catch((err) => console.error("signOut error:", err));
-  }
-
-  async function signInWithGoogle(): Promise<UserCredential | void> {
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: "select_account" });
-
-    await setBestPersistence();
-
-    try {
-      if (isIOSOrIPadOS() || isStandalonePWA() || isEmbeddedBrowser()) {
-        try { sessionStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
-        try { localStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
-        try { localStorage.setItem("__AUTH_DBG__onRedirect", JSON.stringify({ ts: Date.now(), note: "redirect-start" })); } catch {}
-        await signInWithRedirect(auth, provider);
-        return;
-      }
-    } catch (err) {
-      console.error("pre-redirect detection error:", err);
-    }
-
-    try {
-      const cred = await signInWithPopup(auth, provider);
-      try {
-        await ensureUserDoc(cred.user);
-      } catch (err) {
-        console.error("ensureUserDoc after popup error:", err);
-      }
-      return cred;
-    } catch (e: any) {
-      if (
-        e?.code === "auth/operation-not-supported-in-this-environment" ||
-        e?.code === "auth/popup-blocked" ||
-        e?.code === "auth/popup-closed-by-user"
-      ) {
-        try { sessionStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
-        try { localStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
-        try { localStorage.setItem("__AUTH_DBG__onRedirect", JSON.stringify({ ts: Date.now(), note: "popup-fallback-redirect" })); } catch {}
-        await signInWithRedirect(auth, provider);
-        return;
-      }
-      throw e;
-    }
-  }
-
-  async function signInWithGoogleRedirect(): Promise<void> {
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: "select_account" });
-    await setBestPersistence();
-    try { sessionStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
-    try { localStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
-    try { localStorage.setItem("__AUTH_DBG__onRedirect", JSON.stringify({ ts: Date.now(), note: "explicit-redirect" })); } catch {}
-    await signInWithRedirect(auth, provider);
   }
 
   async function deleteUserData(uid: string) {
@@ -232,7 +134,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await Promise.all(cartSnap.docs.map((d) => deleteDoc(d.ref)));
     await deleteDoc(doc(database, "users", uid));
   }
-
   async function performFinalAccountDeletion(user: User) {
     await deleteUserData(user.uid);
     await deleteUser(user);
@@ -244,8 +145,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (providerId === "password") {
       if (!user.email) throw new Error("No email available for reauth.");
-      const password = opts?.password ?? window.prompt("Para eliminar tu cuenta, introduce tu contrasena") ?? "";
-      if (!password) throw new Error("Se cancelo la reautenticacion.");
+      const password = opts?.password ?? window.prompt("Para eliminar tu cuenta, introduce tu contraseña") ?? "";
+      if (!password) throw new Error("Se canceló la reautenticación.");
       const cred = EmailAuthProvider.credential(user.email, password);
       await reauthenticateWithCredential(user, cred);
       return "password" as const;
@@ -255,48 +156,102 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const googleProvider = new GoogleAuthProvider();
       try {
         if (isIOSOrIPadOS() || isStandalonePWA() || isEmbeddedBrowser()) {
-          try { localStorage.setItem(PENDING_DELETE_KEY, "1"); } catch {}
+          localStorage.setItem(PENDING_DELETE_KEY, "1");
           await reauthenticateWithRedirect(user, googleProvider);
           return "redirect" as const;
         }
         await reauthenticateWithPopup(user, googleProvider);
         return "popup" as const;
-      } catch (e: any) {
-        try { localStorage.setItem(PENDING_DELETE_KEY, "1"); } catch {}
+      } catch {
+        localStorage.setItem(PENDING_DELETE_KEY, "1");
         await reauthenticateWithRedirect(user, googleProvider);
         return "redirect" as const;
       }
     }
 
-    throw new Error("Proveedor no soportado para re-autenticacion.");
+    throw new Error("Proveedor no soportado para re-autenticación.");
+  }
+
+  // ---------- Métodos públicos ----------
+  async function signUp({ email, password, name, phone, address }: SignUpInput) {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    await updateProfile(cred.user, { displayName: name });
+    await ensureUserDoc(cred.user, { phone, address });
+    return cred;
+  }
+
+  function logIn(email: string, password: string) {
+    return signInWithEmailAndPassword(auth, email, password);
+  }
+
+  function logOut() {
+    return signOut(auth);
+  }
+
+  async function signInWithGoogle(): Promise<UserCredential | void> {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+
+    // iOS / PWA / webview → redirect directo
+    if (isIOSOrIPadOS() || isStandalonePWA() || isEmbeddedBrowser()) {
+      try { sessionStorage.setItem(RETURN_TO_KEY, "/usuario"); localStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
+      await signInWithRedirect(auth, provider); // ✅ sin tercer argumento
+      return;
+    }
+
+    try {
+      const cred = await signInWithPopup(auth, provider);
+      await ensureUserDoc(cred.user);
+      return cred;
+    } catch (e: any) {
+      if (
+        e?.code === "auth/operation-not-supported-in-this-environment" ||
+        e?.code === "auth/popup-blocked" ||
+        e?.code === "auth/popup-closed-by-user"
+      ) {
+        try { sessionStorage.setItem(RETURN_TO_KEY, "/usuario"); localStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
+        await signInWithRedirect(auth, provider); // ✅ sin tercer argumento
+        return;
+      }
+      throw e;
+    }
+  }
+
+  async function signInWithGoogleRedirect(): Promise<void> {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+    try { sessionStorage.setItem(RETURN_TO_KEY, "/usuario"); localStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
+    await signInWithRedirect(auth, provider); // ✅
   }
 
   async function deleteAccount(opts?: { password?: string }) {
     const user = auth.currentUser;
     if (!user) throw new Error("No hay usuario autenticado.");
-
     const mode = await reauthenticateUser(user, { password: opts?.password });
-    if (mode === "redirect") return;
+    if (mode === "redirect") return; // volverá del redirect y se procesará en onIdTokenChanged
     await performFinalAccountDeletion(user);
   }
 
   async function updateUser(data: UpdateUserInput): Promise<void> {
     const u = auth.currentUser;
-    if (!u) throw new Error("Debes iniciar sesion.");
+    if (!u) throw new Error("Debes iniciar sesión.");
 
-    const needsAuthProfile = typeof data.name === "string" && data.name.trim().length > 0;
-
-    if (needsAuthProfile) {
-      await updateProfile(u, { displayName: data.name ?? u.displayName ?? undefined });
+    // Actualiza perfil de Auth si cambia el nombre
+    if (typeof data.name === "string" && data.name.trim()) {
+      await updateProfile(u, { displayName: data.name });
     }
 
+    // Actualiza Firestore
     const payload: Record<string, unknown> = { updatedAt: serverTimestamp() };
-    if (typeof data.name === "string") payload["name"] = data.name;
-    if (typeof data.phone === "string") payload["phone"] = data.phone;
-    if (typeof data.address === "string") payload["address"] = data.address;
+    if (data.name !== undefined) payload.name = data.name;
+    if (data.phone !== undefined) payload.phone = data.phone;
+    if (data.address !== undefined) payload.address = data.address;
+
     await setDoc(doc(database, "users", u.uid), payload, { merge: true });
+
+    // Refleja el displayName en el estado local
     if (typeof data.name === "string") {
-      setCurrentUser({ ...u, displayName: data.name ?? u.displayName });
+      setCurrentUser({ ...u, displayName: data.name });
     }
   }
 
