@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+﻿import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { auth } from "../firebase/firebase";
 import { database } from "../firebase/firebase";
 import {
@@ -116,28 +116,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    // Ensure best persistence before processing redirect/user
-    setBestPersistence().catch(() => {});
+    let unsub: (() => void) | undefined;
 
-    const unsub = onIdTokenChanged(auth, async (user) => {
-      setCurrentUser(user);
-      setInitializing(false);
+    (async () => {
+      await setBestPersistence().catch(() => {});
 
       try {
-        if (!hasProcessedPendingDelete.current && user && localStorage.getItem(PENDING_DELETE_KEY)) {
-          hasProcessedPendingDelete.current = true;
-          await performFinalAccountDeletion(user);
-          localStorage.removeItem(PENDING_DELETE_KEY);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    });
-
-    getRedirectResult(auth)
-      .then(async (res) => {
+        const res = await getRedirectResult(auth);
         if (res?.user) {
-          // reflect the signed-in user immediately after redirect
           setCurrentUser(res.user);
           setInitializing(false);
           await ensureUserDoc(res.user);
@@ -150,11 +136,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
           } catch {}
         }
-      })
-      .catch(console.error);
+      } catch (e) {
+        console.error(e);
+      }
 
-    return unsub;
-  }, []);
+      unsub = onIdTokenChanged(auth, async (user) => {
+        setCurrentUser(user);
+        setInitializing(false);
+
+        try {
+          if (!hasProcessedPendingDelete.current && user && localStorage.getItem(PENDING_DELETE_KEY)) {
+            hasProcessedPendingDelete.current = true;
+            await performFinalAccountDeletion(user);
+            localStorage.removeItem(PENDING_DELETE_KEY);
+          }
+        } catch (err) {
+          console.error(err);
+        }
+        });
+      })();
+
+      return () => {
+        if (unsub) unsub();
+      };
+    }, []);
 
   async function ensureUserDoc(u: User, extra?: Partial<{ phone: string; address: string }>) {
     const ref = doc(database, "users", u.uid);
@@ -212,6 +217,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       if (isIOSOrIPadOS() || isStandalonePWA() || isEmbeddedBrowser()) {
         try { sessionStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
+        try { localStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
         await signInWithRedirect(auth, provider);
         return;
       }
@@ -228,6 +234,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         e?.code === "auth/popup-closed-by-user"
       ) {
         try { sessionStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
+        try { localStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
         await signInWithRedirect(auth, provider);
         return;
       }
@@ -240,6 +247,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     provider.setCustomParameters({ prompt: "select_account" });
     await setBestPersistence();
     try { sessionStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
+    try { localStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
     await signInWithRedirect(auth, provider);
   }
 
