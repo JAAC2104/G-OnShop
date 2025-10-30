@@ -119,14 +119,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let unsub: (() => void) | undefined;
 
     (async () => {
+      // Prefer persistent storage so redirect flows keep the session
       await setBestPersistence().catch(() => {});
 
+      // Process redirect result first (if any)
       try {
         const res = await getRedirectResult(auth);
+        try {
+          localStorage.setItem("__AUTH_DBG__lastRedirect", JSON.stringify({ ok: !!res?.user, ts: Date.now(), uid: res?.user?.uid ?? null }));
+        } catch {}
         if (res?.user) {
           setCurrentUser(res.user);
           setInitializing(false);
-          await ensureUserDoc(res.user);
+          try {
+            await ensureUserDoc(res.user);
+          } catch (err) {
+            console.error("ensureUserDoc after redirect error:", err);
+          }
+
           try {
             const ret = sessionStorage.getItem(RETURN_TO_KEY) || localStorage.getItem(RETURN_TO_KEY);
             if (ret) {
@@ -134,12 +144,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               try { localStorage.removeItem(RETURN_TO_KEY); } catch {}
               window.location.replace(ret);
             }
-          } catch {}
+          } catch (err) {
+            console.error("redirect-to stored path error:", err);
+          }
         }
-      } catch (e) {
-        console.error(e);
+      } catch (e: any) {
+        console.error("getRedirectResult error:", e);
+        try { localStorage.setItem("__AUTH_DBG__getRedirectError", JSON.stringify({ error: e?.toString?.() ?? String(e), ts: Date.now() })); } catch {}
       }
 
+      // Then attach onIdTokenChanged to keep user in sync
       unsub = onIdTokenChanged(auth, async (user) => {
         setCurrentUser(user);
         setInitializing(false);
@@ -151,15 +165,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             localStorage.removeItem(PENDING_DELETE_KEY);
           }
         } catch (err) {
-          console.error(err);
+          console.error("pending delete processing error:", err);
         }
-        });
-      })();
+      });
+    })();
 
-      return () => {
-        if (unsub) unsub();
-      };
-    }, []);
+    return () => {
+      if (unsub) unsub();
+    };
+  }, []);
 
   async function ensureUserDoc(u: User, extra?: Partial<{ phone: string; address: string }>) {
     const ref = doc(database, "users", u.uid);
@@ -205,7 +219,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   function logOut() {
-    signOut(auth);
+    signOut(auth).catch((err) => console.error("signOut error:", err));
   }
 
   async function signInWithGoogle(): Promise<UserCredential | void> {
@@ -218,14 +232,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (isIOSOrIPadOS() || isStandalonePWA() || isEmbeddedBrowser()) {
         try { sessionStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
         try { localStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
+        try { localStorage.setItem("__AUTH_DBG__onRedirect", JSON.stringify({ ts: Date.now(), note: "redirect-start" })); } catch {}
         await signInWithRedirect(auth, provider);
         return;
       }
-    } catch {}
+    } catch (err) {
+      console.error("pre-redirect detection error:", err);
+    }
 
     try {
       const cred = await signInWithPopup(auth, provider);
-      await ensureUserDoc(cred.user);
+      try {
+        await ensureUserDoc(cred.user);
+      } catch (err) {
+        console.error("ensureUserDoc after popup error:", err);
+      }
       return cred;
     } catch (e: any) {
       if (
@@ -235,6 +256,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ) {
         try { sessionStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
         try { localStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
+        try { localStorage.setItem("__AUTH_DBG__onRedirect", JSON.stringify({ ts: Date.now(), note: "popup-fallback-redirect" })); } catch {}
         await signInWithRedirect(auth, provider);
         return;
       }
@@ -248,6 +270,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await setBestPersistence();
     try { sessionStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
     try { localStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
+    try { localStorage.setItem("__AUTH_DBG__onRedirect", JSON.stringify({ ts: Date.now(), note: "explicit-redirect" })); } catch {}
     await signInWithRedirect(auth, provider);
   }
 
@@ -280,14 +303,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const googleProvider = new GoogleAuthProvider();
       try {
         if (isIOSOrIPadOS() || isStandalonePWA() || isEmbeddedBrowser()) {
-          localStorage.setItem(PENDING_DELETE_KEY, "1");
+          try { localStorage.setItem(PENDING_DELETE_KEY, "1"); } catch {}
           await reauthenticateWithRedirect(user, googleProvider);
           return "redirect" as const;
         }
         await reauthenticateWithPopup(user, googleProvider);
         return "popup" as const;
       } catch (e: any) {
-        localStorage.setItem(PENDING_DELETE_KEY, "1");
+        try { localStorage.setItem(PENDING_DELETE_KEY, "1"); } catch {}
         await reauthenticateWithRedirect(user, googleProvider);
         return "redirect" as const;
       }
