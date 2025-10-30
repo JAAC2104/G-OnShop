@@ -12,8 +12,6 @@ const app = getApps().length ? getApp() : initializeApp({
 });
 
 export const auth = initializeAuth(app, {
-  // Provide multiple persistence options to improve compatibility on iOS
-  // (Private mode may block IndexedDB/localStorage).
   persistence: [
     indexedDBLocalPersistence,
     browserLocalPersistence,
