@@ -1,10 +1,5 @@
-import { getApp, getApps, initializeApp } from "firebase/app";
-import {
-  initializeAuth,
-  browserPopupRedirectResolver,
-  indexedDBLocalPersistence,
-  browserLocalPersistence,
-} from "firebase/auth";
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -13,13 +8,12 @@ const firebaseConfig = {
   projectId: import.meta.env.VITE_PROJECT_ID,
   storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_APP_ID
+  appId: import.meta.env.VITE_APP_ID,
 };
 
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-export const auth = initializeAuth(app, {
-  persistence: [indexedDBLocalPersistence, browserLocalPersistence],
-  popupRedirectResolver: browserPopupRedirectResolver,
-});
+// Inicializa la app solo una vez
+const app = initializeApp(firebaseConfig);
 
+// Exporta instancias listas para usar
+export const auth = getAuth(app);
 export const database = getFirestore(app);
