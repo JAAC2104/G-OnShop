@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useRef, useState } from "react";
+﻿import { type FormEvent, useEffect, useRef, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { NavLink, useNavigate } from "react-router";
 import { GoogleButton } from "../components/GoogleBtn";
@@ -10,12 +10,28 @@ export default function LoginPage(){
     const [loading, setLoading] = useState(false);
     const { logIn, initializing, currentUser, signInWithGoogle } = useAuth();
     const navigate = useNavigate();
+    const [isEmbedded, setIsEmbedded] = useState(false);
+
+    function detectEmbeddedBrowser() {
+        try{
+            const ua = (navigator.userAgent || "").toLowerCase();
+            const patterns = [
+                "fbav", "fban", "instagram", "line/", "twitter", "tiktok", "snapchat",
+                "; wv;", "webview", "duckduckgo", "gsa", "miuibrowser", "heytapbrowser", "oppobrowser", "opxbrowser"
+            ];
+            return patterns.some(p => ua.includes(p));
+        } catch { return false; }
+    }
 
     useEffect(() => {
         if (!initializing && currentUser) {
             navigate("/usuario", { replace: true });
         }
     }, [initializing, currentUser, navigate]);
+
+    useEffect(() => {
+        setIsEmbedded(detectEmbeddedBrowser());
+    }, []);
 
     async function handleSubmit(e: FormEvent<HTMLFormElement>){
         e.preventDefault();
@@ -28,7 +44,7 @@ export default function LoginPage(){
             await logIn(emailRef.current?.value, passwordRef.current?.value);
             navigate("/usuario", { replace: true})
         } catch{
-            setError("Credenciales Inválidos")
+            setError("Credenciales InvA�lidos")
         }
 
         setLoading(false);
@@ -57,6 +73,11 @@ export default function LoginPage(){
                         }
                     }} label="Continuar con Google"/>
                 </div>
+                {isEmbedded && (
+                    <div className="mt-3 text-center text-sm text-blue bg-yellow-100 border border-yellow-300 rounded-md p-2">
+                        Estas usando un navegador dentro de una app (por ejemplo, Instagram/Facebook/TikTok). Para iniciar sesion con Google, abre esta pagina en tu navegador (Safari o Chrome) y vuelve a intentarlo.
+                    </div>
+                )}
             </form>
         </div>
         <div className="m-2 mx-auto w-[300px] lg:w-lg p-5 flex justify-center gap-3">

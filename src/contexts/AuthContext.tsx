@@ -1,4 +1,4 @@
-﻿import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { auth } from "../firebase/firebase";
 import { database } from "../firebase/firebase";
 import {
@@ -60,12 +60,13 @@ export function useAuth(): AuthContextValue {
   return ctx;
 }
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [initializing, setInitializing] = useState(true);
   const hasProcessedPendingDelete = useRef(false);
 
   const PENDING_DELETE_KEY = "__PENDING_DELETE_ACCOUNT__";
+  const RETURN_TO_KEY = "__AUTH_RETURN_TO__";
 
   function isIOSOrIPadOS(): boolean {
     try {
@@ -115,6 +116,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
+    // Ensure best persistence before processing redirect/user
+    setBestPersistence().catch(() => {});
+
     const unsub = onIdTokenChanged(auth, async (user) => {
       setCurrentUser(user);
       setInitializing(false);
@@ -131,12 +135,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     getRedirectResult(auth)
-      .then((res) => {
+      .then(async (res) => {
         if (res?.user) {
-          // Ensure app state reflects the signed-in user immediately after redirect
+          // reflect the signed-in user immediately after redirect
           setCurrentUser(res.user);
           setInitializing(false);
-          return ensureUserDoc(res.user);
+          await ensureUserDoc(res.user);
+          try {
+            const ret = sessionStorage.getItem(RETURN_TO_KEY) || localStorage.getItem(RETURN_TO_KEY);
+            if (ret) {
+              try { sessionStorage.removeItem(RETURN_TO_KEY); } catch {}
+              try { localStorage.removeItem(RETURN_TO_KEY); } catch {}
+              window.location.replace(ret);
+            }
+          } catch {}
         }
       })
       .catch(console.error);
@@ -167,13 +179,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await setPersistence(auth, browserLocalPersistence);
       return;
-    } catch (e) {
-    }
+    } catch {}
     try {
       await setPersistence(auth, browserSessionPersistence);
       return;
-    } catch (e) {
-    }
+    } catch {}
     await setPersistence(auth, inMemoryPersistence);
   }
 
@@ -201,11 +211,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       if (isIOSOrIPadOS() || isStandalonePWA() || isEmbeddedBrowser()) {
+        try { sessionStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
         await signInWithRedirect(auth, provider);
         return;
       }
-    } catch {
-    }
+    } catch {}
 
     try {
       const cred = await signInWithPopup(auth, provider);
@@ -217,6 +227,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         e?.code === "auth/popup-blocked" ||
         e?.code === "auth/popup-closed-by-user"
       ) {
+        try { sessionStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
         await signInWithRedirect(auth, provider);
         return;
       }
@@ -228,6 +239,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: "select_account" });
     await setBestPersistence();
+    try { sessionStorage.setItem(RETURN_TO_KEY, "/usuario"); } catch {}
     await signInWithRedirect(auth, provider);
   }
 
@@ -241,18 +253,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function performFinalAccountDeletion(user: User) {
     await deleteUserData(user.uid);
     await deleteUser(user);
-    try {
-      await signOut(auth);
-    } catch {}
+    try { await signOut(auth); } catch {}
   }
 
   async function reauthenticateUser(user: User, opts?: { password?: string }) {
     const providerId = user.providerData[0]?.providerId;
 
     if (providerId === "password") {
-      if (!user.email) throw new Error("El usuario no tiene email para reautenticar.");
-      const password = opts?.password ?? window.prompt("Para eliminar tu cuenta, introduce tu contraseña") ?? "";
-      if (!password) throw new Error("Se canceló la reautenticación.");
+      if (!user.email) throw new Error("No email available for reauth.");
+      const password = opts?.password ?? window.prompt("Para eliminar tu cuenta, introduce tu contrasena") ?? "";
+      if (!password) throw new Error("Se cancelo la reautenticacion.");
       const cred = EmailAuthProvider.credential(user.email, password);
       await reauthenticateWithCredential(user, cred);
       return "password" as const;
@@ -275,7 +285,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    throw new Error("Proveedor no soportado para re-autenticación.");
+    throw new Error("Proveedor no soportado para re-autenticacion.");
   }
 
   async function deleteAccount(opts?: { password?: string }) {
@@ -283,31 +293,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!user) throw new Error("No hay usuario autenticado.");
 
     const mode = await reauthenticateUser(user, { password: opts?.password });
-
     if (mode === "redirect") return;
-
     await performFinalAccountDeletion(user);
   }
 
   async function updateUser(data: UpdateUserInput): Promise<void> {
     const u = auth.currentUser;
-    if (!u) throw new Error("Debes iniciar sesión.");
+    if (!u) throw new Error("Debes iniciar sesion.");
 
     const needsAuthProfile = typeof data.name === "string" && data.name.trim().length > 0;
 
     if (needsAuthProfile) {
-      await updateProfile(u, {
-        displayName: data.name ?? u.displayName ?? undefined,
-      });
+      await updateProfile(u, { displayName: data.name ?? u.displayName ?? undefined });
     }
 
-    const payload: Record<string, unknown> = {
-      updatedAt: serverTimestamp(),
-    };
+    const payload: Record<string, unknown> = { updatedAt: serverTimestamp() };
     if (typeof data.name === "string") payload["name"] = data.name;
     if (typeof data.phone === "string") payload["phone"] = data.phone;
     if (typeof data.address === "string") payload["address"] = data.address;
-
     await setDoc(doc(database, "users", u.uid), payload, { merge: true });
     if (typeof data.name === "string") {
       setCurrentUser({ ...u, displayName: data.name ?? u.displayName });
