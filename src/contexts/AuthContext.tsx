@@ -1,4 +1,4 @@
-﻿import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+﻿import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { auth } from "../firebase/firebase";
 import { database } from "../firebase/firebase";
 import {
@@ -63,7 +63,6 @@ export function useAuth(): AuthContextValue {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [initializing, setInitializing] = useState(true);
-  const hasProcessedPendingDelete = useRef(false);
 
   const PENDING_DELETE_KEY = "__PENDING_DELETE_ACCOUNT__";
   const RETURN_TO_KEY = "__AUTH_RETURN_TO__";
@@ -116,64 +115,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    let unsub: (() => void) | undefined;
+  const unsub = onIdTokenChanged(auth, (user) => {
+    setCurrentUser(user);
+    setInitializing(false);
+  });
 
-    (async () => {
-      // Prefer persistent storage so redirect flows keep the session
-      await setBestPersistence().catch(() => {});
+  getRedirectResult(auth)
+    .then(res => { if (res?.user) ensureUserDoc(res.user); })
+    .catch(console.error);
 
-      // Process redirect result first (if any)
-      try {
-        const res = await getRedirectResult(auth);
-        try {
-          localStorage.setItem("__AUTH_DBG__lastRedirect", JSON.stringify({ ok: !!res?.user, ts: Date.now(), uid: res?.user?.uid ?? null }));
-        } catch {}
-        if (res?.user) {
-          setCurrentUser(res.user);
-          setInitializing(false);
-          try {
-            await ensureUserDoc(res.user);
-          } catch (err) {
-            console.error("ensureUserDoc after redirect error:", err);
-          }
-
-          try {
-            const ret = sessionStorage.getItem(RETURN_TO_KEY) || localStorage.getItem(RETURN_TO_KEY);
-            if (ret) {
-              try { sessionStorage.removeItem(RETURN_TO_KEY); } catch {}
-              try { localStorage.removeItem(RETURN_TO_KEY); } catch {}
-              window.location.replace(ret);
-            }
-          } catch (err) {
-            console.error("redirect-to stored path error:", err);
-          }
-        }
-      } catch (e: any) {
-        console.error("getRedirectResult error:", e);
-        try { localStorage.setItem("__AUTH_DBG__getRedirectError", JSON.stringify({ error: e?.toString?.() ?? String(e), ts: Date.now() })); } catch {}
-      }
-
-      // Then attach onIdTokenChanged to keep user in sync
-      unsub = onIdTokenChanged(auth, async (user) => {
-        setCurrentUser(user);
-        setInitializing(false);
-
-        try {
-          if (!hasProcessedPendingDelete.current && user && localStorage.getItem(PENDING_DELETE_KEY)) {
-            hasProcessedPendingDelete.current = true;
-            await performFinalAccountDeletion(user);
-            localStorage.removeItem(PENDING_DELETE_KEY);
-          }
-        } catch (err) {
-          console.error("pending delete processing error:", err);
-        }
-      });
-    })();
-
-    return () => {
-      if (unsub) unsub();
-    };
-  }, []);
+  return unsub;
+}, []);
 
   async function ensureUserDoc(u: User, extra?: Partial<{ phone: string; address: string }>) {
     const ref = doc(database, "users", u.uid);
