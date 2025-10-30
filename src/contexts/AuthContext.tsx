@@ -132,7 +132,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     getRedirectResult(auth)
       .then((res) => {
-        if (res?.user) ensureUserDoc(res.user);
+        if (res?.user) {
+          // Ensure app state reflects the signed-in user immediately after redirect
+          setCurrentUser(res.user);
+          setInitializing(false);
+          return ensureUserDoc(res.user);
+        }
       })
       .catch(console.error);
 
