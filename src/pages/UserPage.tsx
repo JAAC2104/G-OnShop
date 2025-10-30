@@ -39,8 +39,8 @@ export default function UserPage() {
 
   function handleDelete(){
     setOpen(true);
+    // deleteAccount maneja reautenticación, eliminación de datos y signOut
     deleteAccount();
-    logOut();
   }
 
   const InfoBlock = (

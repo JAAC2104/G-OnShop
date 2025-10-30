@@ -1,5 +1,5 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
-import { browserLocalPersistence, browserPopupRedirectResolver, indexedDBLocalPersistence, initializeAuth } from "firebase/auth";
+import { browserLocalPersistence, browserPopupRedirectResolver, indexedDBLocalPersistence, initializeAuth, browserSessionPersistence, inMemoryPersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const app = getApps().length ? getApp() : initializeApp({
@@ -12,7 +12,14 @@ const app = getApps().length ? getApp() : initializeApp({
 });
 
 export const auth = initializeAuth(app, {
-  persistence: [indexedDBLocalPersistence, browserLocalPersistence],
+  // Provide multiple persistence options to improve compatibility on iOS
+  // (Private mode may block IndexedDB/localStorage).
+  persistence: [
+    indexedDBLocalPersistence,
+    browserLocalPersistence,
+    browserSessionPersistence,
+    inMemoryPersistence,
+  ],
   popupRedirectResolver: browserPopupRedirectResolver,
 });
 
