@@ -4,14 +4,13 @@ import { doc, getDoc, setDoc, deleteDoc, onSnapshot, collection, increment, getD
 import { useAuth } from "./AuthContext";
 
 export type CartItem = {
-  id: number; // product base id
+  id: number;
   name: string;
   image: string;
   quantity: number;
   price: number;
   size: string;
   color: string;
-  // internal key for variant line (id+size+color). Present when read from Firestore.
   lineKey?: string;
 };
 

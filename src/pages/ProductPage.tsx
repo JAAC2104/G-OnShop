@@ -33,13 +33,13 @@ export default function ProductPage() {
   const sizeRef = useRef<HTMLSelectElement>(null);
 
   const colors = [
-    { name: "amber", class: "bg-amber-300" },
-    { name: "blue", class: "bg-blue-400" },
-    { name: "pink", class: "bg-pink-400" },
-    { name: "green", class: "bg-green-400" },
-    { name: "red", class: "bg-red-400" },
-    { name: "skyBlue", class: "bg-sky-400" },
-    { name: "white", class: "bg-neutral-200" },
+    { name: "Ambar", class: "bg-amber-300" },
+    { name: "Azul", class: "bg-blue-400" },
+    { name: "Rosa", class: "bg-pink-400" },
+    { name: "Verde", class: "bg-green-400" },
+    { name: "Rojo", class: "bg-red-400" },
+    { name: "Celeste", class: "bg-sky-400" },
+    { name: "Blanco", class: "bg-neutral-200" },
   ];
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -84,11 +84,11 @@ export default function ProductPage() {
                     <label htmlFor="talla">Seleccione la talla:</label>
                     <select name="talla" id="talla" className="border-2 border-pink rounded-md p-1 bg-neutral-100" ref={sizeRef}>
                       <option value="" disabled>Selecciona talla</option>
-                      <option value="xs">XS</option>
-                      <option value="s">S</option>
-                      <option value="m">M</option>
-                      <option value="l">L</option>
-                      <option value="xl">XL</option>
+                      <option value="XS">XS</option>
+                      <option value="S">S</option>
+                      <option value="M">M</option>
+                      <option value="L">L</option>
+                      <option value="XL">XL</option>
                     </select>
                   </div>
                   <button className="bg-yellow p-2 rounded-md m-5 text-blue cursor-pointer" type="submit" onClick={() => {}}>Agregar al carrito</button>
