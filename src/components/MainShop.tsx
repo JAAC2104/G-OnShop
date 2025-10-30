@@ -104,7 +104,7 @@ export default function MainShop(){
           <button onClick={() => setFilter('unisex')} className={`w-18 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "unisex" ? "bg-pink text-white transition-all duration-300" : ""}`}>Unisex</button>
           <button onClick={() => setFilter('tops mujer')} className={`w-15 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "tops mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Tops</button>
           <button onClick={() => setFilter('topsReversibles mujer')} className={`w-35 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "topsReversibles mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Tops Reversibles</button>
-          <button onClick={() => setFilter('camisas mujer')} className={`w-20 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "camisas mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Camisas</button>
+          <button onClick={() => setFilter('camisas unisex')} className={`w-20 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "camisas unisex" ? "bg-pink text-white transition-all duration-300" : ""}`}>Camisas</button>
           <button onClick={() => setFilter('leggings mujer')} className={`w-23 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "leggings mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Leggings</button>
           <button onClick={() => setFilter('shorts mujer')} className={`w-20 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "shorts mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Shorts</button>
           <button onClick={() => setFilter('bolsos mujer')} className={`w-18 h-8 bg-white rounded-lg cursor-pointer hover:bg-neutral-100 transition-all duration-200 ${filter === "bolsos mujer" ? "bg-pink text-white transition-all duration-300" : ""}`}>Bolsos</button>
@@ -116,7 +116,7 @@ export default function MainShop(){
       <div className="grid grid-cols-2 md:grid-cols-3 lg:w-6/7 lg:grid-cols-4 m-2 mt-2 lg:mx-auto justify-center items-center gap-5">
         {filteredProducts.map(product => (
           <NavLink className="block" key={product.id} to={`/p/${product.id}/${product.name}`}>
-            <div className="animate-scroll-slide-up flex flex-col group hover:scale-102 transition-all duration-200 max-w-[300px] min-h-[300px] cursor-pointer mx-auto">
+            <div className="animate-scroll-slide-up flex flex-col group hover:scale-102 transition-all duration-200 max-w-[300px] min-h-[250px] cursor-pointer mx-auto">
               <div className="max-h-[400px] max-w-[400px] relative w-full aspect-[1/1]">
                 <img className="absolute inset-0 h-full w-full object-cover rounded-md" src={product.img} alt="Product Image" />
                 <div className="absolute bottom-0 text-blue bg-neutral-300/80 font-semibold w-full p-1 text-center opacity-0 group-hover:opacity-100 rounded-b-md transition-all duration-300">Ver Producto</div>
