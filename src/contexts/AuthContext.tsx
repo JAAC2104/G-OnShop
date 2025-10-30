@@ -163,13 +163,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await setPersistence(auth, browserLocalPersistence);
       return;
     } catch (e) {
-      // localStorage may be blocked (iOS Private Mode)
     }
     try {
       await setPersistence(auth, browserSessionPersistence);
       return;
     } catch (e) {
-      // sessionStorage may be blocked too; fall back to memory
     }
     await setPersistence(auth, inMemoryPersistence);
   }
@@ -196,14 +194,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     await setBestPersistence();
 
-    // Prefer redirect on iOS/iPadOS, standalone PWAs, or embedded browsers
     try {
       if (isIOSOrIPadOS() || isStandalonePWA() || isEmbeddedBrowser()) {
         await signInWithRedirect(auth, provider);
         return;
       }
     } catch {
-      // Continue with popup attempt below
     }
 
     try {
@@ -283,7 +279,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const mode = await reauthenticateUser(user, { password: opts?.password });
 
-    // If redirect was needed, finish deletion after returning in onIdTokenChanged
     if (mode === "redirect") return;
 
     await performFinalAccountDeletion(user);
