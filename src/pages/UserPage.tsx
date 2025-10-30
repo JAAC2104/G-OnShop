@@ -4,13 +4,15 @@ import { useUserProfile } from "../hooks/useUserProfile";
 import Alert from "../components/Alert";
 
 export default function UserPage() {
-  const { logOut, deleteAccount, updateUser } = useAuth();
+  const { logOut, deleteAccount, updateUser, currentUser } = useAuth();
   const userInfo = useUserProfile();
 
   const [currentOption, setCurrentOption] = useState<"info" | "options">("info");
   const [isActive, setIsActive] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [open, setOpen] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteError, setDeleteError] = useState("");
 
 
   const [form, setForm] = useState({
@@ -37,10 +39,17 @@ export default function UserPage() {
     setIsEditing(false);
   }
 
-  function handleDelete(){
-    setOpen(true);
-    // deleteAccount maneja reautenticación, eliminación de datos y signOut
-    deleteAccount();
+  async function handleDelete(){
+    setDeleteError("");
+    try {
+      const isPasswordProvider = !!currentUser?.providerData?.some(p => p?.providerId === "password");
+      await deleteAccount(isPasswordProvider ? { password: deletePassword } : undefined);
+      // Si no fue redirect, la cuenta se elimina y se cierra sesión aquí
+      setIsActive(false);
+    } catch (e: any) {
+      const msg = e?.message || "No se pudo eliminar la cuenta. Verifica tu contraseña.";
+      setDeleteError(msg);
+    }
   }
 
   const InfoBlock = (
@@ -211,7 +220,23 @@ export default function UserPage() {
           <li>Dirección</li>
           <li>Contraseña</li>
         </ul>
-        <p className="text-center text-blue">¿Desea continuar?</p>
+        {currentUser?.providerData?.some(p => p?.providerId === "password") && (
+          <div className="flex flex-col gap-2 mx-5 lg:mx-20">
+            <label htmlFor="delete-password" className="text-blue font-semibold">Confirma tu contraseña</label>
+            <input
+              id="delete-password"
+              type="password"
+              className="border-2 border-pink rounded-md p-2 bg-neutral-200"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              placeholder="Ingresa tu contraseña"
+            />
+            {deleteError && (
+              <span className="text-red-600 text-sm">Error, la contraseña es incorrecta</span>
+            )}
+          </div>
+        )}
+        <p className="text-center text-blue m-5">¿Desea continuar?</p>
         <div className="flex justify-around lg:m-10 m-5">
           <button
             className="bg-neutral-200 text-blue p-2 rounded-md cursor-pointer hover:shadow-md font-semibold"
@@ -220,8 +245,9 @@ export default function UserPage() {
             Cancelar
           </button>
           <button
-            className="bg-pink text-white p-2 rounded-md cursor-pointer hover:shadow-md"
-            onClick={() => handleDelete()}
+            className={`bg-pink text-white p-2 rounded-md hover:shadow-md ${currentUser?.providerData?.some(p => p?.providerId === "password") && !deletePassword ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+            disabled={currentUser?.providerData?.some(p => p?.providerId === "password") && !deletePassword}
+            onClick={handleDelete}
           >
             Continuar
           </button>
