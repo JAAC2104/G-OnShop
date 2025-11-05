@@ -42,6 +42,18 @@
       animation-range: entry 0% cover 35%;
     }
   }
+
+  @keyframes slide-up {
+    0%   { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-slide-up {
+      animation: slide-up 2s ease-out both;
+      animation-delay: var(--delay, 0ms);
+    }
+  }
 }
 
 ::-webkit-scrollbar {
